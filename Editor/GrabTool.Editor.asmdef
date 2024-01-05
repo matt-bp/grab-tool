@@ -1,0 +1,16 @@
+{
+    "name": "GrabTool.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:dd5eb91514064a86afe3b860e2948706"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
