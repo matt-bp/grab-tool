@@ -10,15 +10,14 @@ namespace Editor.GrabTool.Lines
         public override void OnInspectorGUI()
         {
             if (target is not LineGenerator generator) return;
-            
-            GUILayout.Label ("This is a Label in a Custom Editor");
+
+            GUILayout.Label ("Generate a circle made up of line segments.");
+            generator.numPoints = EditorGUILayout.IntField("Number of line segments", generator.numPoints);
             if (GUILayout.Button("Generate"))
             {
                 Debug.Log("Generate!");
                 generator.Generate();
             }
-
-            generator.numPoints = EditorGUILayout.IntField("Number of Points", generator.numPoints);
         }
     }
 }
