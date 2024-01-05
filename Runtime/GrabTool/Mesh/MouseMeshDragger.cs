@@ -15,7 +15,7 @@ namespace GrabTool.Mesh
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
-        public AnimationCurve dragSensitivityCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
+        public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
         private void Start()
         {
@@ -90,19 +90,23 @@ namespace GrabTool.Mesh
             if (MattMath.Raycast(ray, meshesToCheckCollision.First(), out var mouseHit))
             {
                 var hitObject = mouseHit.Transform.gameObject;
+                Debug.Log($"Hit: {hitObject.name}");
                 var worldSpacePosition = mouseHit.Point;
+                Debug.Log($"Hit at: {worldSpacePosition}");
 
                 _mouseIndicatorState.Show();
                 _mouseIndicatorState.UpdatePosition(worldSpacePosition, size);
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _trackingState.StartTracking(worldSpacePosition, hitObject, size, dragSensitivityCurve);
+                    Debug.Log("Start!");
+                    _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
                 }
             }
             else
             {
                 // If we're not over the cloth, we for sure wont see anything
+                Debug.Log("No hit");
                 _mouseIndicatorState.Hide();
             }
         }
