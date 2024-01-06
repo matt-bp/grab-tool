@@ -10,11 +10,7 @@ namespace GrabTool.Mesh
         void Start()
         {
             var meshFilter = GetComponent<MeshFilter>();
-
-            var temp = 0;
-
-            Debug.Log(temp);
-
+            
             var newMesh = MakeCopy(meshFilter.sharedMesh);
 
             meshFilter.sharedMesh = newMesh;

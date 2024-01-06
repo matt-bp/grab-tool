@@ -90,23 +90,19 @@ namespace GrabTool.Mesh
             if (MattMath.Raycast(ray, meshesToCheckCollision.First(), out var mouseHit))
             {
                 var hitObject = mouseHit.Transform.gameObject;
-                Debug.Log($"Hit: {hitObject.name}");
                 var worldSpacePosition = mouseHit.Point;
-                Debug.Log($"Hit at: {worldSpacePosition}");
 
                 _mouseIndicatorState.Show();
                 _mouseIndicatorState.UpdatePosition(worldSpacePosition, size);
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    Debug.Log("Start!");
                     _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
                 }
             }
             else
             {
                 // If we're not over the cloth, we for sure wont see anything
-                Debug.Log("No hit");
                 _mouseIndicatorState.Hide();
             }
         }
@@ -147,8 +143,6 @@ namespace GrabTool.Mesh
                     .Select((v, i) => new { v, i, closeRatio = GetWorldSpaceDistance(v) / radius })
                     .Where(x => x.closeRatio is >= 0 and <= 1)
                     .ToDictionary(x => x.i, x => (x.v, x.closeRatio));
-
-                Debug.Log($"Finished starting tracking! Got {_indicesAndOriginalPositions.Count} indices.");
             }
 
             public void UpdateIndices(Vector3 worldMousePosition)

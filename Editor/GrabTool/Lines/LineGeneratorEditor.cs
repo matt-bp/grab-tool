@@ -15,7 +15,6 @@ namespace Editor.GrabTool.Lines
             generator.numPoints = EditorGUILayout.IntField("Number of line segments", generator.numPoints);
             if (GUILayout.Button("Generate"))
             {
-                Debug.Log("Generate!");
                 generator.Generate();
             }
         }
