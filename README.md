@@ -4,7 +4,7 @@ A runtime implementation of Maya's "Grab Tool" in Unity.
 
 ## Demo
 
-![Example Scene Demo](./Documentation~/Grab-Tool-Demo.mp4)
+... coming soon
 
 ## Motivation
 
