@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GrabTool.Mesh
 {
@@ -11,8 +12,9 @@ namespace GrabTool.Mesh
         public MeshHistory(List<UnityEngine.Mesh> startingMeshes)
         {
             _meshes = startingMeshes;
+            _currentMesh = startingMeshes.Count - 1;
         }
-        
+
         public MeshHistory(UnityEngine.Mesh startingMesh)
         {
             _meshes.Add(startingMesh);
@@ -30,11 +32,12 @@ namespace GrabTool.Mesh
         {
             if (_currentMesh < _meshes.Count - 1)
             {
-                // Remove range
-                _meshes.RemoveRange(_currentMesh + 1, _meshes.Count - _currentMesh);
+                var count = _meshes.Count - (_currentMesh + 1);
+                _meshes.RemoveRange(_currentMesh + 1, count);
             }
-                
+
             _meshes.Add(mesh);
+            _currentMesh++;
         }
     }
 }
