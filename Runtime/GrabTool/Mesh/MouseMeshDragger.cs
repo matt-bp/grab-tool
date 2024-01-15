@@ -13,6 +13,7 @@ namespace GrabTool.Mesh
         private MouseIndicatorState _mouseIndicatorState;
         private Camera _camera;
         private readonly TrackingState _trackingState = new();
+        private MeshHistory _history;
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
@@ -54,6 +55,8 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButtonUp(0))
                 {
                     _trackingState.StopTracking();
+                    
+                    _history.AddMesh(_trackingState.LastHitObject.GetComponent<MeshFilter>().sharedMesh);
                 }
             }
             else
@@ -62,7 +65,9 @@ namespace GrabTool.Mesh
 
                 if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
                 {
-                    Debug.Log("Undo!");
+                    _history.Undo();
+                    
+                    _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
                 }
             }
         }
@@ -104,6 +109,12 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButtonDown(0))
                 {
                     _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
+
+                    if (_history is null)
+                    {
+                        Debug.Log("Starting history");
+                        _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                    }
                 }
             }
             else
@@ -127,6 +138,7 @@ namespace GrabTool.Mesh
             private MeshCollider _meshCollider;
             private Dictionary<int, (Vector3 LocalPoint, float CloseRatio)> _indicesAndOriginalPositions;
             private AnimationCurve _falloff;
+            public GameObject LastHitObject => _hitObject;
 
             public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius,
                 AnimationCurve falloff)
@@ -169,7 +181,7 @@ namespace GrabTool.Mesh
                 UpdateMeshes(newPositions);
             }
 
-            private void UpdateMeshes(Vector3[] newPositions)
+            public void UpdateMeshes(Vector3[] newPositions)
             {
                 _meshToUpdate.vertices = newPositions;
                 _meshToUpdate.RecalculateBounds();

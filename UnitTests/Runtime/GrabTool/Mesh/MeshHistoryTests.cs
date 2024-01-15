@@ -17,17 +17,7 @@ namespace UnitTests.Runtime.GrabTool.Mesh
             
             Assert.That(mh.CurrentMesh.vertices[0], Is.EqualTo(Vector3.forward));
         }
-
-        [Test]
-        public void Undo_WithMoreThanOne_MovesIndexBack()
-        {
-            var mh = new MeshHistory(MakeMeshes());
-            
-            mh.Undo();
-            
-            Assert.That(mh.CurrentMesh.vertices[0], Is.EqualTo(Vector3.back));
-        }
-
+        
         [Test]
         public void AddMesh_AddingOne_MakesThatTheCurrentMesh()
         {
@@ -37,7 +27,7 @@ namespace UnitTests.Runtime.GrabTool.Mesh
             
             Assert.That(mh.CurrentMesh.vertices[0], Is.EqualTo(Vector3.right));
         }
-
+        
         [Test]
         public void UndoAddMesh_ChainedTogether_KeepsCurrentMeshValid()
         {
@@ -47,7 +37,7 @@ namespace UnitTests.Runtime.GrabTool.Mesh
             mh.AddMesh(MakeMesh(Vector3.left));
             mh.AddMesh(MakeMesh(Vector3.up));
             mh.AddMesh(MakeMesh(Vector3.down));
-
+        
             mh.Undo(); // to up
             mh.Undo(); // to left
             
@@ -59,7 +49,6 @@ namespace UnitTests.Runtime.GrabTool.Mesh
             
             Assert.That(mh.CurrentMesh.vertices[0], Is.EqualTo(Vector3.right));
         }
-        
         
         #region Helpers
 

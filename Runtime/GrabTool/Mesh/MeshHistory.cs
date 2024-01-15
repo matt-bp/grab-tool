@@ -1,43 +1,30 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GrabTool.Mesh
 {
     public class MeshHistory
     {
-        private List<UnityEngine.Mesh> _meshes = new();
+        private readonly Stack<UnityEngine.Mesh> _currentHistory = new();
         private int _currentMesh;
-        public UnityEngine.Mesh CurrentMesh => _meshes[_currentMesh];
-
-        public MeshHistory(List<UnityEngine.Mesh> startingMeshes)
-        {
-            _meshes = startingMeshes;
-            _currentMesh = startingMeshes.Count - 1;
-        }
+        public UnityEngine.Mesh CurrentMesh => MeshCopier.MakeCopy(_currentHistory.Peek());
 
         public MeshHistory(UnityEngine.Mesh startingMesh)
         {
-            _meshes.Add(startingMesh);
+            var copy = MeshCopier.MakeCopy(startingMesh);
+
+            _currentHistory.Push(copy);
         }
 
         public void Undo()
         {
-            if (_currentMesh > 0)
-            {
-                _currentMesh--;
-            }
+            if (_currentHistory.Count == 1) return;
+ 
+            _currentHistory.Pop();
         }
 
         public void AddMesh(UnityEngine.Mesh mesh)
         {
-            if (_currentMesh < _meshes.Count - 1)
-            {
-                var count = _meshes.Count - (_currentMesh + 1);
-                _meshes.RemoveRange(_currentMesh + 1, count);
-            }
-
-            _meshes.Add(mesh);
-            _currentMesh++;
+            _currentHistory.Push(MeshCopier.MakeCopy(mesh));
         }
     }
 }
