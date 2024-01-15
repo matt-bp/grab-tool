@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GrabTool.Math;
+using UnityEditor;
 using UnityEngine;
 
 namespace GrabTool.Mesh
@@ -58,6 +59,11 @@ namespace GrabTool.Mesh
             else
             {
                 CheckForMouseOverAndStart(ray);
+
+                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
+                {
+                    Debug.Log("Undo!");
+                }
             }
         }
 
@@ -112,7 +118,7 @@ namespace GrabTool.Mesh
             size = value;
         }
 
-        class TrackingState
+        private class TrackingState
         {
             public bool CurrentlyTracking { get; private set; }
             public Vector3 InitialPosition { get; private set; }
@@ -180,7 +186,7 @@ namespace GrabTool.Mesh
             }
         }
 
-        class MouseIndicatorState
+        private class MouseIndicatorState
         {
             private readonly GameObject _instance;
             private readonly LineRenderer _lineRenderer;

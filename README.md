@@ -18,6 +18,8 @@ The _Grab Tool_ can be found under the _Sculpting_ tab.
 See the example scene. It has the functionality for keyboard setup. Remember to turn on "Read/Write Enabled" on the mesh you want to edit.
 I included a script that copies the mesh on startup so you only make changes to a temporary mesh (I accidentally changed mine on disk).
 
+To add it to your Unity project, to go the Package Manager window, click the `+` on the top left corner, and add by git url. See [Unity docs on Git dependencies](https://docs.unity3d.com/Manual/upm-git.html#syntax) for how to specify a specific commit, branch, or tag. 
+
 ## Example Scene Attribution
 
 The mesh was created by myself.
