@@ -55,7 +55,7 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButtonUp(0))
                 {
                     _trackingState.StopTracking();
-                    
+
                     _history.AddMesh(_trackingState.LastHitObject.GetComponent<MeshFilter>().sharedMesh);
                 }
             }
@@ -63,10 +63,15 @@ namespace GrabTool.Mesh
             {
                 CheckForMouseOverAndStart(ray);
 
+
+#if UNITY_EDITOR
+                if (Input.GetKeyDown(KeyCode.Z))
+#else
                 if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
+#endif
                 {
                     _history.Undo();
-                    
+
                     _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
                 }
             }
