@@ -7,6 +7,7 @@ namespace GrabTool.Mesh
     {
         [Header("View")] [SerializeField] private SphereCollider leftHand;
         [SerializeField] private GameObject colliderVisualization;
+        [SerializeField] private MeshFilter[] meshesToCheckCollision;
         
         private VRIndicatorState _vrIndicatorState;
         private readonly VREventStatus _eventStatus = new();
@@ -27,7 +28,10 @@ namespace GrabTool.Mesh
             
             if (_eventStatus.GrabPressed)
             {
-                // UpdateIndices();
+                _vrIndicatorState.Hide();
+
+                // UpdateIndices(leftController.transform.point?);
+                // just get the world space position of the "Left Controller"
             }
             else
             {
@@ -51,9 +55,17 @@ namespace GrabTool.Mesh
             Debug.Log("Start tracking!");
                 
             // Get world space position of collision of sphere and mesh
+            // Pickup here! Look for how to get 
+            // I have the controller center, I need to find a world space hit point 
+            // - Maybe I take the controller center, and find the closest point on the mesh to that center?
+            leftHand.ClosestPoint(colliderVisualization.transform.position); // Uhh, I think this is it? Does it work with a non-convex mesh?
+            // Maybe I can get the collider information from the hover event? Then I'd just need to store the leftController main object
                 
             // Start tracking
             _trackingState.StartTracking();
+            // Get size
+            // Get falloff curve
+            // Also need a way to adjust the radius of the collider on the leftController.
                 
             // Do history things
         }
