@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class CollisionLogger : MonoBehaviour
 {
-    public void LogEnter()
+    public void VRControllerClothEnter()
     {
-        Debug.Log("Entered");
+        Debug.Log("VRControllerClothEnter");
     }
 
-    public void LogExit()
-    {
-        Debug.Log("Exit");
+    public void VRControllerClothExit()
+    {   
+        Debug.Log("VRControllerClothExit");
     }
-    
 }
