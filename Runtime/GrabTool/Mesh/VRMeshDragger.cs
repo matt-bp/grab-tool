@@ -10,30 +10,27 @@ namespace GrabTool.Mesh
     {
         [SerializeField] private GameObject colliderVisualization;
 
-        private VRIndicatorState _vrIndicatorState;
+        // private VRIndicatorState _vrIndicatorState;
 
         private readonly VREventStatus _eventStatus = new();
         private readonly TrackingState _trackingState = new();
         private MeshHistory _history;
-        private float _radius = 0.1f;
+        [SerializeField] private float radius = 0.1f;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
         private void Start()
         {
-            _vrIndicatorState = new VRIndicatorState(colliderVisualization);
+            // _vrIndicatorState = new VRIndicatorState(colliderVisualization);
+            
+            UpdateRadius();
         }
 
         private void Update()
         {
             if (!_trackingState.CurrentlyTracking)
             {
-                if (_eventStatus.IncreasePressed)
-                {
-                    _radius += 0.2f * Time.deltaTime;
-                }
-                
                 CheckForHoverAndStart();
 
                 if (_eventStatus.UndoPressedThisFrame && _history != null)
@@ -52,7 +49,7 @@ namespace GrabTool.Mesh
             if (_eventStatus.GrabPressed)
             {
                 Debug.Log("Updating!");
-                _vrIndicatorState.Hide();
+                // _vrIndicatorState.Hide();
 
                 Debug.Assert(_eventStatus.InteractorGameObject != null, "Need to have an interactor object (controller)");
                 
@@ -68,14 +65,12 @@ namespace GrabTool.Mesh
         {
             if (!_eventStatus.Hovering)
             {
-                _vrIndicatorState.Hide();
+                // _vrIndicatorState.Hide();
                 return;
             }
 
-            _vrIndicatorState.Show();
-            Debug.Log($"Radius: {_radius}");
-            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _radius;
-            colliderVisualization.transform.localScale = new Vector3(_radius * 2.0f, _radius * 2.0f, _radius * 2.0f);
+            // _vrIndicatorState.Show();
+            UpdateRadius();
 
             // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!_eventStatus.GrabPressed) return;
@@ -91,7 +86,7 @@ namespace GrabTool.Mesh
             Debug.Log("Started tracking, on the hunt...");
 
             _trackingState.StartTracking(_eventStatus.InteractorGameObject.transform.position,
-                _eventStatus.HoveredGameObject, _radius, falloffCurve);
+                _eventStatus.HoveredGameObject, radius, falloffCurve);
 
             // Do history things
             if (_history is null)
@@ -108,6 +103,18 @@ namespace GrabTool.Mesh
             _trackingState.StopTracking();
             
             _history.AddMesh(_trackingState.LastMesh);
+        }
+        
+        public void OnRadiusChanged(float value)
+        {
+            radius = value;
+        }
+
+        private void UpdateRadius()
+        {
+            // Debug.Log($"Radius: {radius}");
+            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = radius;
+            colliderVisualization.transform.localScale = new Vector3(radius * 2.0f, radius * 2.0f, radius * 2.0f);
         }
 
         #region Event Listeners
@@ -166,28 +173,28 @@ namespace GrabTool.Mesh
         #endregion
     }
 
-    internal class VRIndicatorState
-    {
-        private readonly GameObject _indicator;
-
-        public VRIndicatorState(GameObject indicator)
-        {
-            _indicator = indicator;
-        }
-
-        public void Hide()
-        {
-            if (_indicator.activeSelf)
-            {
-                _indicator.SetActive(false);
-            }
-        }
-
-        public void Show()
-        {
-            _indicator.SetActive(true);
-        }
-    }
+    // internal class VRIndicatorState
+    // {
+    //     private readonly GameObject _indicator;
+    //
+    //     public VRIndicatorState(GameObject indicator)
+    //     {
+    //         _indicator = indicator;
+    //     }
+    //
+    //     public void Hide()
+    //     {
+    //         if (_indicator.activeSelf)
+    //         {
+    //             _indicator.SetActive(false);
+    //         }
+    //     }
+    //
+    //     public void Show()
+    //     {
+    //         _indicator.SetActive(true);
+    //     }
+    // }
 
     internal class VREventStatus
     {
