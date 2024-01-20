@@ -7,15 +7,23 @@ namespace GrabTool.Mesh
 {
     public class VRMeshDragger : MonoBehaviour
     {
-        [Header("View")] [SerializeField] private GameObject leftHand;
+        // [Header("View")] [SerializeField] private GameObject leftHand;
         [SerializeField] private GameObject colliderVisualization;
-        [SerializeField] private MeshFilter[] meshesToCheckCollision;
-        [SerializeField] private GameObject closestPointVisualization;
-        
+        // [SerializeField] private MeshFilter[] meshesToCheckCollision;
+        // [SerializeField] private GameObject closestPointVisualization;
+
         private VRIndicatorState _vrIndicatorState;
+
         private readonly VREventStatus _eventStatus = new();
-        private readonly VRTrackingState _trackingState = new();
-        
+
+        // private readonly VRTrackingState _trackingState = new();
+        private readonly TrackingState _trackingState = new();
+        private float _radius = 0.1f;
+
+        [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
+        public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
+
+
         private void Start()
         {
             _vrIndicatorState = new VRIndicatorState(colliderVisualization);
@@ -28,13 +36,17 @@ namespace GrabTool.Mesh
                 CheckForHoverAndStart();
                 return;
             }
-            
+
             if (_eventStatus.GrabPressed)
             {
+                Debug.Log("Updating!");
                 _vrIndicatorState.Hide();
 
+                Debug.Assert(_eventStatus.InteractorGameObject != null, "Need to have an interactor object (controller)");
+                
                 // UpdateIndices(leftController.transform.point?);
                 // just get the world space position of the "Left Controller"
+                _trackingState.UpdateIndices(_eventStatus.InteractorGameObject.transform.position);
             }
             else
             {
@@ -49,64 +61,66 @@ namespace GrabTool.Mesh
                 _vrIndicatorState.Hide();
                 return;
             }
-            
+
             _vrIndicatorState.Show();
 
             if (!_eventStatus.GrabPressed) return;
-            
+
             // Start tracking!
             Debug.Log("Start tracking!");
 
-            if (_eventStatus.HoveredCollider == null || _eventStatus.InteractorGameObject == null)
+            if (_eventStatus.HoveredGameObject == null || _eventStatus.InteractorGameObject == null)
             {
                 Debug.Log("No collider or interactor game object.");
                 return;
             }
-                
+
             // Get world space position of collision of sphere and mesh
             // Pickup here! Look for how to get 
             // I have the controller center, I need to find a world space hit point 
             // - Maybe I take the controller center, and find the closest point on the mesh to that center?
             //leftHand.ClosestPoint(colliderVisualization.transform.position); // Uhh, I think this is it? Does it work with a non-convex mesh?
             // Maybe I can get the collider information from the hover event? Then I'd just need to store the leftController main object
-            _eventStatus.HoveredCollider.ClosestPoint(_eventStatus.InteractorGameObject.transform.position);    
+            // _eventStatus.HoveredCollider.ClosestPoint(_eventStatus.InteractorGameObject.transform.position);    
             // Physics.ComputePenetration()
             // var position = _eventStatus.HoveredCollider.ClosestPoint()
-            
+            Debug.Log("Started tracking, on the hunt...");
             // Start tracking
-            _trackingState.StartTracking();
+            _trackingState.StartTracking(_eventStatus.InteractorGameObject.transform.position,
+                _eventStatus.HoveredGameObject, _radius, falloffCurve);
             // Get size
             // Get falloff curve
             // Also need a way to adjust the radius of the collider on the leftController.
-                
+
             // Do history things
         }
 
         private void StopTracking()
         {
             Debug.Log("Stopped tracking");
-            
+
             _trackingState.StopTracking();
         }
-        
+
         #region Event Listeners
 
         public void OnHoverEnter(HoverEnterEventArgs args)
         {
             Debug.Log("ClothInteractionPresenter.OnHoverEnter()");
-            
+
             // Debug.Log($"Hit: {args.interactableObject.transform.gameObject.name}");
             // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
             // args.interactorObject.transform.gameObject.transform.position
             Debug.Assert(args.interactableObject.colliders.Count == 1);
-            
-            _eventStatus.StartHover(args.interactableObject.colliders[0], args.interactorObject.transform.gameObject);
+
+            _eventStatus.StartHover(args.interactableObject.transform.gameObject,
+                args.interactorObject.transform.gameObject);
         }
 
         public void OnHoverExit()
         {
             Debug.Log("ClothInteractionPresenter.OnHoverExit()");
-            
+
             _eventStatus.EndHover();
         }
 
@@ -121,7 +135,7 @@ namespace GrabTool.Mesh
             Debug.Log("ClothInteractionPresenter.OnGrabReleased()");
             _eventStatus.ReleaseGrab();
         }
-        
+
         #endregion
     }
 
@@ -133,7 +147,7 @@ namespace GrabTool.Mesh
         {
             _indicator = indicator;
         }
-        
+
         public void Hide()
         {
             if (_indicator.activeSelf)
@@ -147,25 +161,25 @@ namespace GrabTool.Mesh
             _indicator.SetActive(true);
         }
     }
-    
+
     internal class VREventStatus
     {
         public bool Hovering { get; private set; }
         public bool GrabPressed { get; private set; }
-        [CanBeNull] public Collider HoveredCollider { get; private set; }
+        [CanBeNull] public GameObject HoveredGameObject { get; private set; }
         [CanBeNull] public GameObject InteractorGameObject { get; private set; }
 
-        public void StartHover(Collider hoveredCollider, GameObject interactor)
+        public void StartHover(GameObject hoveredObject, GameObject interactor)
         {
             Hovering = true;
-            HoveredCollider = hoveredCollider;
+            HoveredGameObject = hoveredObject;
             InteractorGameObject = interactor;
         }
 
         public void EndHover()
         {
             Hovering = false;
-            HoveredCollider = null;
+            HoveredGameObject = null;
         }
 
         public void PressGrab()
@@ -178,7 +192,7 @@ namespace GrabTool.Mesh
             GrabPressed = false;
         }
     }
-    
+
     internal class VRTrackingState
     {
         public bool CurrentlyTracking { get; private set; }
