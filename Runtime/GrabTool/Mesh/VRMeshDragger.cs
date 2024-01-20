@@ -131,8 +131,11 @@ namespace GrabTool.Mesh
 
         private void UpdateRadiusUsages()
         {
-            Debug.Log($"VRMeshDragger Radius: {_currentRadius}");
-            _hoverStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
+            if (_hoverStatus.InteractorGameObject != null)
+            {
+                _hoverStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
+            }
+            
             colliderVisualization.transform.localScale =
                 2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
         }
@@ -142,6 +145,9 @@ namespace GrabTool.Mesh
         public void OnHoverEnter(HoverEnterEventArgs args)
         {
             Debug.Log("ClothInteractionPresenter.OnHoverEnter()");
+
+            // If we're tracking and this gets called again, that means another interactor has hovered over the mesh. No good!
+            if (_trackingState.CurrentlyTracking) return;
 
             // Debug.Log($"Hit: {args.interactableObject.transform.gameObject.name}");
             // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
