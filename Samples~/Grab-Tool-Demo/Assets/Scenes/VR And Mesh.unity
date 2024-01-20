@@ -215,7 +215,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 99698820}
-  - component: {fileID: 99698821}
   - component: {fileID: 99698822}
   - component: {fileID: 99698823}
   m_Layer: 0
@@ -243,65 +242,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &99698821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 99698819}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6ef168f4e8f2694d9f45f992d69df29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  action:
-    m_Name: Action
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: fb14d521-a641-4bf2-a579-49156fafa875
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 83a35406-418b-469a-9b00-5aef8d8cea6a
-      m_Path: <XRController>{LeftHand}/{GripButton}
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Action
-      m_Flags: 0
-    m_Flags: 0
-  OnPress:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1297467691}
-        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
-        m_MethodName: OnGrabPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnRelease:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1297467691}
-        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
-        m_MethodName: OnGrabReleased
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &99698822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1187,7 +1127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8eba2de35314890ab22b7912bc50848, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colliderVisualization: {fileID: 48210672}
+  minimumRadius: 0.1
   falloffCurve:
     serializedVersion: 2
     m_Curve:
@@ -1212,6 +1152,31 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  colliderVisualization: {fileID: 48210672}
+  grabAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Grab Action
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 57ef6eab-3e9e-40d5-88f1-b15702f5479b
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: -4313070174043343668, guid: 468c4d4d56b91a741b217dfd8cb45d03, type: 3}
+  undoAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Undo Action
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: d5dc95cf-2a16-4b0b-9d3b-b23fe62a9dbe
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
 --- !u!114 &1297467692
 MonoBehaviour:
   m_ObjectHideFlags: 0

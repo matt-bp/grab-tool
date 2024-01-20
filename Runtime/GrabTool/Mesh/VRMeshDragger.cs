@@ -2,25 +2,44 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Inputs;
 
 namespace GrabTool.Mesh
 {
     public class VRMeshDragger : MonoBehaviour
     {
-        [SerializeField] private GameObject colliderVisualization;
-
-        // private VRIndicatorState _vrIndicatorState;
-
-        private readonly VREventStatus _eventStatus = new();
+        private readonly VRHoverStatus _hoverStatus = new();
         private readonly TrackingState _trackingState = new();
         private MeshHistory _history;
-        [SerializeField] private float minimumRadius = 0.1f;
         private float _currentRadius;
         public float CurrentRadius => _currentRadius;
-        
+
+        [Header("Settings")] [SerializeField] private float minimumRadius = 0.1f;
+
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
+
+        [Header("View")] [SerializeField] private GameObject colliderVisualization;
+
+        [SerializeField] [Tooltip("The Input System Action that will be used to signify a grab.")]
+        private InputActionProperty grabAction = new(new InputAction("Grab Action"));
+
+        [SerializeField] [Tooltip("The Input System Action that will be used to signify undo.")]
+        private InputActionProperty undoAction = new(new InputAction("Undo Action"));
+
+        protected void OnEnable()
+        {
+            grabAction.EnableDirectAction();
+            undoAction.EnableDirectAction();
+        }
+
+        protected void OnDisable()
+        {
+            grabAction.DisableDirectAction();
+            undoAction.DisableDirectAction();
+        }
 
         private void Start()
         {
@@ -35,27 +54,25 @@ namespace GrabTool.Mesh
             {
                 CheckForHoverAndStart();
 
-                if (_eventStatus.UndoPressedThisFrame && _history != null)
+                if (undoAction.action.WasPressedThisFrame() && undoAction.action.IsPressed() && _history != null)
                 {
-                    // Be sure to "consume" input
-                    _eventStatus.UseUndo();
-                    
                     _history.Undo();
-                    
+
                     _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
                 }
-                
+
                 return;
             }
 
-            if (_eventStatus.GrabPressed)
+            if (grabAction.action.IsPressed())
             {
                 Debug.Log("Updating!");
                 // _vrIndicatorState.Hide();
 
-                Debug.Assert(_eventStatus.InteractorGameObject != null, "Need to have an interactor object (controller)");
-                
-                _trackingState.UpdateIndices(_eventStatus.InteractorGameObject.transform.position);
+                Debug.Assert(_hoverStatus.InteractorGameObject != null,
+                    "Need to have an interactor object (controller)");
+
+                _trackingState.UpdateIndices(_hoverStatus.InteractorGameObject.transform.position);
             }
             else
             {
@@ -65,7 +82,7 @@ namespace GrabTool.Mesh
 
         private void CheckForHoverAndStart()
         {
-            if (!_eventStatus.Hovering)
+            if (!_hoverStatus.Hovering)
             {
                 // _vrIndicatorState.Hide();
                 return;
@@ -73,13 +90,12 @@ namespace GrabTool.Mesh
 
             // _vrIndicatorState.Show();
 
-
             // Check if user has initiated tracking by pressing the grab button on the controller.
-            if (!_eventStatus.GrabPressed) return;
-            
+            if (!(grabAction.action.WasPressedThisFrame() && grabAction.action.IsPressed())) return;
+
             Debug.Log("Start tracking!");
 
-            if (_eventStatus.HoveredGameObject == null || _eventStatus.InteractorGameObject == null)
+            if (_hoverStatus.HoveredGameObject == null || _hoverStatus.InteractorGameObject == null)
             {
                 Debug.Log("No collider or interactor game object.");
                 return;
@@ -87,14 +103,14 @@ namespace GrabTool.Mesh
 
             Debug.Log("Started tracking, on the hunt...");
 
-            _trackingState.StartTracking(_eventStatus.InteractorGameObject.transform.position,
-                _eventStatus.HoveredGameObject, _currentRadius, falloffCurve);
+            _trackingState.StartTracking(_hoverStatus.InteractorGameObject.transform.position,
+                _hoverStatus.HoveredGameObject, _currentRadius, falloffCurve);
 
             // Do history things
             if (_history is null)
             {
                 Debug.Log("Starting history");
-                _history = new MeshHistory(_eventStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
+                _history = new MeshHistory(_hoverStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
             }
         }
 
@@ -103,10 +119,10 @@ namespace GrabTool.Mesh
             Debug.Log("Stopped tracking");
 
             _trackingState.StopTracking();
-            
+
             _history.AddMesh(_trackingState.LastMesh);
         }
-        
+
         public void OnRadiusChanged(float value)
         {
             _currentRadius = System.Math.Max(value, minimumRadius);
@@ -116,10 +132,9 @@ namespace GrabTool.Mesh
         private void UpdateRadiusUsages()
         {
             Debug.Log($"VRMeshDragger Radius: {_currentRadius}");
-            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
-            Debug.Log($"Updating radius of {_eventStatus.InteractorGameObject.name}");
-            colliderVisualization.transform.localScale = 2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
-            Debug.Log($"Updating local scale of {colliderVisualization.name}");
+            _hoverStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
+            colliderVisualization.transform.localScale =
+                2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
         }
 
         #region Event Listeners
@@ -132,7 +147,7 @@ namespace GrabTool.Mesh
             // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
             Debug.Assert(args.interactableObject.colliders.Count == 1);
 
-            _eventStatus.StartHover(args.interactableObject.transform.gameObject,
+            _hoverStatus.StartHover(args.interactableObject.transform.gameObject,
                 args.interactorObject.transform.gameObject);
         }
 
@@ -140,39 +155,7 @@ namespace GrabTool.Mesh
         {
             Debug.Log("ClothInteractionPresenter.OnHoverExit()");
 
-            _eventStatus.EndHover();
-        }
-
-        public void OnGrabPressed()
-        {
-            Debug.Log("ClothInteractionPresenter.OnGrabPressed()");
-            _eventStatus.PressGrab();
-        }
-
-        public void OnGrabReleased()
-        {
-            Debug.Log("ClothInteractionPresenter.OnGrabReleased()");
-            _eventStatus.ReleaseGrab();
-        }
-
-        public void OnUndoPressed()
-        {
-            _eventStatus.PressUndo();   
-        }
-
-        public void OnUndoReleased()
-        {
-            _eventStatus.ReleaseUndo();
-        }
-
-        public void OnIncreasePressed()
-        {
-            _eventStatus.PressIncreaseRadius();
-        }
-
-        public void OnIncreaseReleased()
-        {
-            _eventStatus.ReleaseIncreaseRadius();
+            _hoverStatus.EndHover();
         }
 
         #endregion
@@ -201,15 +184,9 @@ namespace GrabTool.Mesh
     //     }
     // }
 
-    internal class VREventStatus
+    internal class VRHoverStatus
     {
         public bool Hovering { get; private set; }
-        public bool GrabPressed { get; private set; }
-        public bool UndoPressed { get; private set; }
-        private bool _usedUndo;
-        public bool UndoPressedThisFrame => UndoPressed && !_usedUndo;
-        public bool IncreasePressed { get; private set; }
-        
         [CanBeNull] public GameObject HoveredGameObject { get; private set; }
         [CanBeNull] public GameObject InteractorGameObject { get; private set; }
 
@@ -224,42 +201,6 @@ namespace GrabTool.Mesh
         {
             Hovering = false;
             HoveredGameObject = null;
-        }
-
-        public void PressGrab()
-        {
-            GrabPressed = true;
-        }
-
-        public void ReleaseGrab()
-        {
-            GrabPressed = false;
-        }
-
-        public void PressUndo()
-        {
-            UndoPressed = true;
-            _usedUndo = false;
-        }
-
-        public void ReleaseUndo()
-        {
-            UndoPressed = false;
-        }
-
-        public void UseUndo()
-        {
-            _usedUndo = true;
-        }
-
-        public void PressIncreaseRadius()
-        {
-            IncreasePressed = true;
-        }
-        
-        public void ReleaseIncreaseRadius()
-        {
-            IncreasePressed = false;
         }
     }
 }
