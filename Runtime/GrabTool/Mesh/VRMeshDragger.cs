@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -19,7 +20,6 @@ namespace GrabTool.Mesh
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
-
         private void Start()
         {
             _vrIndicatorState = new VRIndicatorState(colliderVisualization);
@@ -29,6 +29,11 @@ namespace GrabTool.Mesh
         {
             if (!_trackingState.CurrentlyTracking)
             {
+                if (_eventStatus.IncreasePressed)
+                {
+                    _radius += 0.2f * Time.deltaTime;
+                }
+                
                 CheckForHoverAndStart();
 
                 if (_eventStatus.UndoPressedThisFrame && _history != null)
@@ -68,6 +73,9 @@ namespace GrabTool.Mesh
             }
 
             _vrIndicatorState.Show();
+            Debug.Log($"Radius: {_radius}");
+            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _radius;
+            colliderVisualization.transform.localScale = new Vector3(_radius * 2.0f, _radius * 2.0f, _radius * 2.0f);
 
             // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!_eventStatus.GrabPressed) return;
@@ -145,6 +153,16 @@ namespace GrabTool.Mesh
             _eventStatus.ReleaseUndo();
         }
 
+        public void OnIncreasePressed()
+        {
+            _eventStatus.PressIncreaseRadius();
+        }
+
+        public void OnIncreaseReleased()
+        {
+            _eventStatus.ReleaseIncreaseRadius();
+        }
+
         #endregion
     }
 
@@ -178,6 +196,8 @@ namespace GrabTool.Mesh
         public bool UndoPressed { get; private set; }
         private bool _usedUndo;
         public bool UndoPressedThisFrame => UndoPressed && !_usedUndo;
+        public bool IncreasePressed { get; private set; }
+        
         [CanBeNull] public GameObject HoveredGameObject { get; private set; }
         [CanBeNull] public GameObject InteractorGameObject { get; private set; }
 
@@ -218,6 +238,16 @@ namespace GrabTool.Mesh
         public void UseUndo()
         {
             _usedUndo = true;
+        }
+
+        public void PressIncreaseRadius()
+        {
+            IncreasePressed = true;
+        }
+        
+        public void ReleaseIncreaseRadius()
+        {
+            IncreasePressed = false;
         }
     }
 }

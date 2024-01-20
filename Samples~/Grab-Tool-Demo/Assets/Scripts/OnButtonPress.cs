@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
@@ -15,7 +16,7 @@ public class OnButtonPress : MonoBehaviour
 
     // When the button is released
     public UnityEvent OnRelease = new UnityEvent();
-
+    
     private void Awake()
     {
         action.started += Pressed;
