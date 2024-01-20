@@ -56,7 +56,7 @@ namespace GrabTool.Mesh
                 {
                     _trackingState.StopTracking();
 
-                    _history.AddMesh(_trackingState.LastHitObject.GetComponent<MeshFilter>().sharedMesh);
+                    _history.AddMesh(_trackingState.LastMesh);
                 }
             }
             else
