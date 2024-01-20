@@ -43,7 +43,6 @@ namespace GrabTool.Mesh
 
         private void Start()
         {
-            // _vrIndicatorState = new VRIndicatorState(colliderVisualization);
             _currentRadius = minimumRadius;
             UpdateRadiusUsages();
         }
@@ -66,9 +65,6 @@ namespace GrabTool.Mesh
 
             if (grabAction.action.IsPressed())
             {
-                Debug.Log("Updating!");
-                // _vrIndicatorState.Hide();
-
                 Debug.Assert(_hoverStatus.InteractorGameObject != null,
                     "Need to have an interactor object (controller)");
 
@@ -82,21 +78,14 @@ namespace GrabTool.Mesh
 
         private void CheckForHoverAndStart()
         {
-            Debug.Log($"Hovering: {_hoverStatus.Hovering}");
             if (!_hoverStatus.Hovering)
             {
-                // _vrIndicatorState.Hide();
                 return;
             }
 
-            // _vrIndicatorState.Show();
-
-            Debug.Log($"This frame: {grabAction.action.WasPressedThisFrame()}, Is Pressed: {grabAction.action.IsPressed()}");
             // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!(grabAction.action.WasPressedThisFrame() && grabAction.action.IsPressed())) return;
-
-            Debug.Log("Start tracking!");
-
+            
             if (_hoverStatus.HoveredGameObject == null || _hoverStatus.InteractorGameObject == null)
             {
                 Debug.Log("No collider or interactor game object.");
@@ -148,15 +137,15 @@ namespace GrabTool.Mesh
         {
             Debug.Log("ClothInteractionPresenter.OnHoverEnter()");
 
+            var interactor = args.interactorObject.transform.gameObject;
             // If we're tracking and this gets called again, that means another interactor has hovered over the mesh. No good!
-            if (_trackingState.CurrentlyTracking) return;
+            if (_trackingState.CurrentlyTracking && interactor != _hoverStatus.InteractorGameObject) return;
 
             // Debug.Log($"Hit: {args.interactableObject.transform.gameObject.name}");
             // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
             Debug.Assert(args.interactableObject.colliders.Count == 1);
 
-            _hoverStatus.StartHover(args.interactableObject.transform.gameObject,
-                args.interactorObject.transform.gameObject);
+            _hoverStatus.StartHover(args.interactableObject.transform.gameObject, interactor);
         }
 
         public void OnHoverExit()
@@ -168,30 +157,7 @@ namespace GrabTool.Mesh
 
         #endregion
     }
-
-    // internal class VRIndicatorState
-    // {
-    //     private readonly GameObject _indicator;
-    //
-    //     public VRIndicatorState(GameObject indicator)
-    //     {
-    //         _indicator = indicator;
-    //     }
-    //
-    //     public void Hide()
-    //     {
-    //         if (_indicator.activeSelf)
-    //         {
-    //             _indicator.SetActive(false);
-    //         }
-    //     }
-    //
-    //     public void Show()
-    //     {
-    //         _indicator.SetActive(true);
-    //     }
-    // }
-
+    
     internal class VRHoverStatus
     {
         public bool Hovering { get; private set; }
