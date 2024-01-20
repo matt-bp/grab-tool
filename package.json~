@@ -8,9 +8,6 @@
   "documentationUrl": "https://github.com/matt-bp/grab-tool",
   "changelogUrl": "https://github.com/matt-bp/grab-tool",
   "licenseUrl": "https://github.com/matt-bp/grab-tool",
-  "dependencies": {
-    "com.unity.xr.interaction.toolkit": "2.5.2"
-  },
   "keywords": [
     "simulation",
     "editor",

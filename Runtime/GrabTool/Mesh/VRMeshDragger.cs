@@ -1,13 +1,16 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 namespace GrabTool.Mesh
 {
     public class VRMeshDragger : MonoBehaviour
     {
-        [Header("View")] [SerializeField] private SphereCollider leftHand;
+        [Header("View")] [SerializeField] private GameObject leftHand;
         [SerializeField] private GameObject colliderVisualization;
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
+        [SerializeField] private GameObject closestPointVisualization;
         
         private VRIndicatorState _vrIndicatorState;
         private readonly VREventStatus _eventStatus = new();
@@ -53,14 +56,23 @@ namespace GrabTool.Mesh
             
             // Start tracking!
             Debug.Log("Start tracking!");
+
+            if (_eventStatus.HoveredCollider == null || _eventStatus.InteractorGameObject == null)
+            {
+                Debug.Log("No collider or interactor game object.");
+                return;
+            }
                 
             // Get world space position of collision of sphere and mesh
             // Pickup here! Look for how to get 
             // I have the controller center, I need to find a world space hit point 
             // - Maybe I take the controller center, and find the closest point on the mesh to that center?
-            leftHand.ClosestPoint(colliderVisualization.transform.position); // Uhh, I think this is it? Does it work with a non-convex mesh?
+            //leftHand.ClosestPoint(colliderVisualization.transform.position); // Uhh, I think this is it? Does it work with a non-convex mesh?
             // Maybe I can get the collider information from the hover event? Then I'd just need to store the leftController main object
-                
+            _eventStatus.HoveredCollider.ClosestPoint(_eventStatus.InteractorGameObject.transform.position);    
+            // Physics.ComputePenetration()
+            // var position = _eventStatus.HoveredCollider.ClosestPoint()
+            
             // Start tracking
             _trackingState.StartTracking();
             // Get size
@@ -79,11 +91,16 @@ namespace GrabTool.Mesh
         
         #region Event Listeners
 
-        public void OnHoverEnter()
+        public void OnHoverEnter(HoverEnterEventArgs args)
         {
             Debug.Log("ClothInteractionPresenter.OnHoverEnter()");
             
-            _eventStatus.StartHover();
+            // Debug.Log($"Hit: {args.interactableObject.transform.gameObject.name}");
+            // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
+            // args.interactorObject.transform.gameObject.transform.position
+            Debug.Assert(args.interactableObject.colliders.Count == 1);
+            
+            _eventStatus.StartHover(args.interactableObject.colliders[0], args.interactorObject.transform.gameObject);
         }
 
         public void OnHoverExit()
@@ -135,15 +152,20 @@ namespace GrabTool.Mesh
     {
         public bool Hovering { get; private set; }
         public bool GrabPressed { get; private set; }
+        [CanBeNull] public Collider HoveredCollider { get; private set; }
+        [CanBeNull] public GameObject InteractorGameObject { get; private set; }
 
-        public void StartHover()
+        public void StartHover(Collider hoveredCollider, GameObject interactor)
         {
             Hovering = true;
+            HoveredCollider = hoveredCollider;
+            InteractorGameObject = interactor;
         }
 
         public void EndHover()
         {
             Hovering = false;
+            HoveredCollider = null;
         }
 
         public void PressGrab()

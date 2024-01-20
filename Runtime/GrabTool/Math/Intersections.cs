@@ -64,5 +64,34 @@ namespace GrabTool.Math
             };
             return true;
         }
+
+        /// <summary>
+        /// Mostly taken from https://planetcalc.com/8108/, simplified for my use case, and extended to 3D.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="v0"></param>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static bool PointInTriangle(Vector3 point, Vector3 v0, Vector3 v1, Vector3 v2)
+        {
+            var pv0 = point - v0;
+            var v1v0 = v1 - v0;
+            var pv0xv1v0 = Vector3.Cross(pv0, v1v0);
+            
+            var pv1 = point - v1;
+            var v2v1 = v2 - v1;
+            var pv1xv2v1 = Vector3.Cross(pv1, v2v1);
+            
+            var pv2 = point - v2;
+            var v0v2 = v0 - v2;
+            var pv2xv0v2 = Vector3.Cross(pv2, v0v2);
+
+            // Last, we find if all the cross products are parallel (or zero), if they are, the point is in the triangle!
+            var firstTwoParallel = Vector3.Dot(pv0xv1v0, pv1xv2v1) >= 0;
+            var secondAndThirdParallel = Vector3.Dot(pv1xv2v1, pv2xv0v2) >= 0;
+
+            return firstTwoParallel && secondAndThirdParallel;
+        }
     }
 }

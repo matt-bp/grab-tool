@@ -215,6 +215,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 99698820}
+  - component: {fileID: 99698821}
   m_Layer: 0
   m_Name: View
   m_TagString: Untagged
@@ -239,6 +240,65 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &99698821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99698819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6ef168f4e8f2694d9f45f992d69df29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  action:
+    m_Name: Action
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: fb14d521-a641-4bf2-a579-49156fafa875
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 83a35406-418b-469a-9b00-5aef8d8cea6a
+      m_Path: <XRController>{LeftHand}/{GripButton}
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Action
+      m_Flags: 0
+    m_Flags: 0
+  OnPress:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1297467691}
+        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
+        m_MethodName: OnGrabPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnRelease:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1297467691}
+        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
+        m_MethodName: OnGrabReleased
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &185672680
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -384,7 +444,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1297467691}
         m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
         m_MethodName: OnHoverEnter
-        m_Mode: 1
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -856,7 +916,6 @@ GameObject:
   - component: {fileID: 1297467688}
   - component: {fileID: 1297467689}
   - component: {fileID: 1297467691}
-  - component: {fileID: 1297467692}
   m_Layer: 0
   m_Name: Presenter
   m_TagString: Untagged
@@ -933,65 +992,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leftHand: {fileID: 0}
   colliderVisualization: {fileID: 48210672}
---- !u!114 &1297467692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1297467687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6ef168f4e8f2694d9f45f992d69df29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  action:
-    m_Name: Action
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: fb14d521-a641-4bf2-a579-49156fafa875
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 83a35406-418b-469a-9b00-5aef8d8cea6a
-      m_Path: <XRController>{LeftHand}/{GripButton}
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Action
-      m_Flags: 0
-    m_Flags: 0
-  OnPress:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1297467691}
-        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
-        m_MethodName: OnGrabPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnRelease:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1297467691}
-        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
-        m_MethodName: OnGrabReleased
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  meshesToCheckCollision: []
 --- !u!1001 &1425446491
 PrefabInstance:
   m_ObjectHideFlags: 0
