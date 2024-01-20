@@ -16,7 +16,8 @@ namespace GrabTool.Mesh
         private readonly TrackingState _trackingState = new();
         private MeshHistory _history;
         [SerializeField] private float radius = 0.1f;
-
+        public float CurrentRadius => radius;
+        
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
@@ -24,7 +25,7 @@ namespace GrabTool.Mesh
         {
             // _vrIndicatorState = new VRIndicatorState(colliderVisualization);
             
-            UpdateRadius();
+            UpdateRadiusUsages();
         }
 
         private void Update()
@@ -70,7 +71,7 @@ namespace GrabTool.Mesh
             }
 
             // _vrIndicatorState.Show();
-            UpdateRadius();
+
 
             // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!_eventStatus.GrabPressed) return;
@@ -108,9 +109,10 @@ namespace GrabTool.Mesh
         public void OnRadiusChanged(float value)
         {
             radius = value;
+            UpdateRadiusUsages();
         }
 
-        private void UpdateRadius()
+        private void UpdateRadiusUsages()
         {
             // Debug.Log($"Radius: {radius}");
             _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = radius;
