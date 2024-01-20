@@ -82,6 +82,7 @@ namespace GrabTool.Mesh
 
         private void CheckForHoverAndStart()
         {
+            Debug.Log($"Hovering: {_hoverStatus.Hovering}");
             if (!_hoverStatus.Hovering)
             {
                 // _vrIndicatorState.Hide();
@@ -90,6 +91,7 @@ namespace GrabTool.Mesh
 
             // _vrIndicatorState.Show();
 
+            Debug.Log($"This frame: {grabAction.action.WasPressedThisFrame()}, Is Pressed: {grabAction.action.IsPressed()}");
             // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!(grabAction.action.WasPressedThisFrame() && grabAction.action.IsPressed())) return;
 
