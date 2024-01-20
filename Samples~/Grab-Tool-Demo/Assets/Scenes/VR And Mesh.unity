@@ -217,6 +217,7 @@ GameObject:
   - component: {fileID: 99698820}
   - component: {fileID: 99698821}
   - component: {fileID: 99698822}
+  - component: {fileID: 99698823}
   m_Layer: 0
   m_Name: View
   m_TagString: Untagged
@@ -342,6 +343,60 @@ MonoBehaviour:
   onRelease:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &99698823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99698819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c07f36c9b05547fe9a533557dba4a84b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Button Press
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: eb567f5b-79ac-4b76-a8a8-eddb20837513
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 7871279901741663439, guid: 468c4d4d56b91a741b217dfd8cb45d03, type: 3}
+  onPress:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1297467691}
+        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
+        m_MethodName: OnUndoPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onRelease:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1297467691}
+        m_TargetAssemblyTypeName: GrabTool.Mesh.VRMeshDragger, GrabTool.Runtime
+        m_MethodName: OnUndoReleased
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &185672680
 PrefabInstance:
   m_ObjectHideFlags: 0

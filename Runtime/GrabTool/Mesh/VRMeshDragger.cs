@@ -7,17 +7,13 @@ namespace GrabTool.Mesh
 {
     public class VRMeshDragger : MonoBehaviour
     {
-        // [Header("View")] [SerializeField] private GameObject leftHand;
         [SerializeField] private GameObject colliderVisualization;
-        // [SerializeField] private MeshFilter[] meshesToCheckCollision;
-        // [SerializeField] private GameObject closestPointVisualization;
 
         private VRIndicatorState _vrIndicatorState;
 
         private readonly VREventStatus _eventStatus = new();
-
-        // private readonly VRTrackingState _trackingState = new();
         private readonly TrackingState _trackingState = new();
+        private MeshHistory _history;
         private float _radius = 0.1f;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
@@ -34,6 +30,17 @@ namespace GrabTool.Mesh
             if (!_trackingState.CurrentlyTracking)
             {
                 CheckForHoverAndStart();
+
+                if (_eventStatus.UndoPressedThisFrame && _history != null)
+                {
+                    // Be sure to "consume" input
+                    _eventStatus.UseUndo();
+                    
+                    _history.Undo();
+                    
+                    _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
+                }
+                
                 return;
             }
 
@@ -44,8 +51,6 @@ namespace GrabTool.Mesh
 
                 Debug.Assert(_eventStatus.InteractorGameObject != null, "Need to have an interactor object (controller)");
                 
-                // UpdateIndices(leftController.transform.point?);
-                // just get the world space position of the "Left Controller"
                 _trackingState.UpdateIndices(_eventStatus.InteractorGameObject.transform.position);
             }
             else
@@ -64,9 +69,9 @@ namespace GrabTool.Mesh
 
             _vrIndicatorState.Show();
 
+            // Check if user has initiated tracking by pressing the grab button on the controller.
             if (!_eventStatus.GrabPressed) return;
-
-            // Start tracking!
+            
             Debug.Log("Start tracking!");
 
             if (_eventStatus.HoveredGameObject == null || _eventStatus.InteractorGameObject == null)
@@ -75,24 +80,17 @@ namespace GrabTool.Mesh
                 return;
             }
 
-            // Get world space position of collision of sphere and mesh
-            // Pickup here! Look for how to get 
-            // I have the controller center, I need to find a world space hit point 
-            // - Maybe I take the controller center, and find the closest point on the mesh to that center?
-            //leftHand.ClosestPoint(colliderVisualization.transform.position); // Uhh, I think this is it? Does it work with a non-convex mesh?
-            // Maybe I can get the collider information from the hover event? Then I'd just need to store the leftController main object
-            // _eventStatus.HoveredCollider.ClosestPoint(_eventStatus.InteractorGameObject.transform.position);    
-            // Physics.ComputePenetration()
-            // var position = _eventStatus.HoveredCollider.ClosestPoint()
             Debug.Log("Started tracking, on the hunt...");
-            // Start tracking
+
             _trackingState.StartTracking(_eventStatus.InteractorGameObject.transform.position,
                 _eventStatus.HoveredGameObject, _radius, falloffCurve);
-            // Get size
-            // Get falloff curve
-            // Also need a way to adjust the radius of the collider on the leftController.
 
             // Do history things
+            if (_history is null)
+            {
+                Debug.Log("Starting history");
+                _history = new MeshHistory(_eventStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
+            }
         }
 
         private void StopTracking()
@@ -100,6 +98,8 @@ namespace GrabTool.Mesh
             Debug.Log("Stopped tracking");
 
             _trackingState.StopTracking();
+            
+            _history.AddMesh(_trackingState.LastMesh);
         }
 
         #region Event Listeners
@@ -110,7 +110,6 @@ namespace GrabTool.Mesh
 
             // Debug.Log($"Hit: {args.interactableObject.transform.gameObject.name}");
             // Debug.Log($"Hitter: {args.interactorObject.transform.gameObject.name}");
-            // args.interactorObject.transform.gameObject.transform.position
             Debug.Assert(args.interactableObject.colliders.Count == 1);
 
             _eventStatus.StartHover(args.interactableObject.transform.gameObject,
@@ -134,6 +133,16 @@ namespace GrabTool.Mesh
         {
             Debug.Log("ClothInteractionPresenter.OnGrabReleased()");
             _eventStatus.ReleaseGrab();
+        }
+
+        public void OnUndoPressed()
+        {
+            _eventStatus.PressUndo();   
+        }
+
+        public void OnUndoReleased()
+        {
+            _eventStatus.ReleaseUndo();
         }
 
         #endregion
@@ -166,6 +175,9 @@ namespace GrabTool.Mesh
     {
         public bool Hovering { get; private set; }
         public bool GrabPressed { get; private set; }
+        public bool UndoPressed { get; private set; }
+        private bool _usedUndo;
+        public bool UndoPressedThisFrame => UndoPressed && !_usedUndo;
         [CanBeNull] public GameObject HoveredGameObject { get; private set; }
         [CanBeNull] public GameObject InteractorGameObject { get; private set; }
 
@@ -191,20 +203,21 @@ namespace GrabTool.Mesh
         {
             GrabPressed = false;
         }
-    }
 
-    internal class VRTrackingState
-    {
-        public bool CurrentlyTracking { get; private set; }
-
-        public void StartTracking()
+        public void PressUndo()
         {
-            CurrentlyTracking = true;
+            UndoPressed = true;
+            _usedUndo = false;
         }
 
-        public void StopTracking()
+        public void ReleaseUndo()
         {
-            CurrentlyTracking = false;
+            UndoPressed = false;
+        }
+
+        public void UseUndo()
+        {
+            _usedUndo = true;
         }
     }
 }

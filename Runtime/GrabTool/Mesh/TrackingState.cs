@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,7 +14,11 @@ namespace GrabTool.Mesh
         private MeshCollider _meshCollider;
         private Dictionary<int, (Vector3 LocalPoint, float CloseRatio)> _indicesAndOriginalPositions;
         private AnimationCurve _falloff;
+        
+        [Obsolete("Use mesh getter instead")]
         public GameObject LastHitObject => _hitObject;
+
+        public UnityEngine.Mesh LastMesh => _meshToUpdate;
 
         public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius,
             AnimationCurve falloff)
