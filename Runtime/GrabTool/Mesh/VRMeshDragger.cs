@@ -15,8 +15,9 @@ namespace GrabTool.Mesh
         private readonly VREventStatus _eventStatus = new();
         private readonly TrackingState _trackingState = new();
         private MeshHistory _history;
-        [SerializeField] private float radius = 0.1f;
-        public float CurrentRadius => radius;
+        [SerializeField] private float minimumRadius = 0.1f;
+        private float _currentRadius;
+        public float CurrentRadius => _currentRadius;
         
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -24,7 +25,7 @@ namespace GrabTool.Mesh
         private void Start()
         {
             // _vrIndicatorState = new VRIndicatorState(colliderVisualization);
-            
+            _currentRadius = minimumRadius;
             UpdateRadiusUsages();
         }
 
@@ -87,7 +88,7 @@ namespace GrabTool.Mesh
             Debug.Log("Started tracking, on the hunt...");
 
             _trackingState.StartTracking(_eventStatus.InteractorGameObject.transform.position,
-                _eventStatus.HoveredGameObject, radius, falloffCurve);
+                _eventStatus.HoveredGameObject, _currentRadius, falloffCurve);
 
             // Do history things
             if (_history is null)
@@ -108,15 +109,17 @@ namespace GrabTool.Mesh
         
         public void OnRadiusChanged(float value)
         {
-            radius = value;
+            _currentRadius = System.Math.Max(value, minimumRadius);
             UpdateRadiusUsages();
         }
 
         private void UpdateRadiusUsages()
         {
-            // Debug.Log($"Radius: {radius}");
-            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = radius;
-            colliderVisualization.transform.localScale = new Vector3(radius * 2.0f, radius * 2.0f, radius * 2.0f);
+            Debug.Log($"VRMeshDragger Radius: {_currentRadius}");
+            _eventStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
+            Debug.Log($"Updating radius of {_eventStatus.InteractorGameObject.name}");
+            colliderVisualization.transform.localScale = 2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
+            Debug.Log($"Updating local scale of {colliderVisualization.name}");
         }
 
         #region Event Listeners
