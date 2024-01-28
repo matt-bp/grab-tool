@@ -135,8 +135,6 @@ namespace GrabTool.Mesh
 
         public void OnHoverEnter(HoverEnterEventArgs args)
         {
-            Debug.Log("ClothInteractionPresenter.OnHoverEnter()");
-
             var interactor = args.interactorObject.transform.gameObject;
             // If we're tracking and this gets called again, that means another interactor has hovered over the mesh. No good!
             if (_trackingState.CurrentlyTracking && interactor != _hoverStatus.InteractorGameObject) return;
@@ -150,8 +148,6 @@ namespace GrabTool.Mesh
 
         public void OnHoverExit()
         {
-            Debug.Log("ClothInteractionPresenter.OnHoverExit()");
-
             _hoverStatus.EndHover();
         }
 
