@@ -1,0 +1,21 @@
+{
+  "name": "com.wright.library",
+  "version": "0.1.0",
+  "displayName": "Wright Library",
+  "description": "Non simulation classes.",
+  "unity": "2021.3",
+  "unityRelease": "20f1",
+  "documentationUrl": "https://github.com/matt-bp/unity-projects",
+  "changelogUrl": "https://github.com/matt-bp/unity-projects",
+  "licenseUrl": "https://github.com/matt-bp/unity-projects",
+  "keywords": [
+    "simulation",
+    "editor",
+    "runtime"
+  ],
+  "author": {
+    "name": "Matt Bishop",
+    "email": "mattsbishop1@gmail.com",
+    "url": "https://github.com/matt-bp"
+  }
+}

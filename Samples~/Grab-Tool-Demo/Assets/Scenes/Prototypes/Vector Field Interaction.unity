@@ -247,9 +247,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afd8c092e504a7c4cbd334401e025672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xSize: 3
-  ySize: 3
-  arrowLength: 1
+  xSize: 4
+  ySize: 4
   densityPerMeter: 5
 --- !u!4 &438670578
 Transform:
@@ -279,8 +278,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   desiredTransformation: {x: -1, y: 0}
-  rO: 1
-  rI: 4
+  rO: 4
+  rI: 1
 --- !u!1 &1410101024
 GameObject:
   m_ObjectHideFlags: 0

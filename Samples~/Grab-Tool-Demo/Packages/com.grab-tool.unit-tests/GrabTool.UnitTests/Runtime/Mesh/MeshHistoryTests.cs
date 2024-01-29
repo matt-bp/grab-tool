@@ -3,8 +3,7 @@ using GrabTool.Mesh;
 using NUnit.Framework;
 using UnityEngine;
 
-
-namespace UnitTests.Runtime.GrabTool.Mesh
+namespace GrabTool.UnitTests.Runtime.Mesh
 {
     public class MeshHistoryTests
     {

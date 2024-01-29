@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.grab-tool.unit-tests": {
+      "version": "file:com.grab-tool.unit-tests",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.matt.grab-tool": {
       "version": "file:../../..",
       "depth": 0,

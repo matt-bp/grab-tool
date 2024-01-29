@@ -1,17 +1,18 @@
 {
-    "name": "GrabTool.Tests",
+    "name": "com.grab-tool.unit-tests",
     "rootNamespace": "",
     "references": [
-        "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:dd5eb91514064a86afe3b860e2948706"
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "GrabTool.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "MathNet.Numerics.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
