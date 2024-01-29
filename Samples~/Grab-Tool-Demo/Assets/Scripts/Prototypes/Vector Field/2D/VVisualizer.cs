@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 namespace Prototypes.Vector_Field._2D
 {
     [RequireComponent(typeof(Grid))]
-    public class PVisualizer : MonoBehaviour
+    public class VVisualizer : MonoBehaviour
     {
         private Grid _grid;
 
@@ -15,7 +15,7 @@ namespace Prototypes.Vector_Field._2D
         [SerializeField]
         private Vector2 desiredTransformation;
 
-        private Vector2 DesiredTransformationNorm => desiredTransformation.normalized;
+        private Vector2 Norm => desiredTransformation.normalized;
 
         [Tooltip("The outer loop cutoff")] [SerializeField]
         private float rO;
@@ -34,15 +34,15 @@ namespace Prototypes.Vector_Field._2D
         {
             foreach (var v in _grid.Points.Select((v, i) => new { v, i }))
             {
-                var value = GetPValue(v.v.x, v.v.y);
-                _grid.Velocities[v.i] = new Vector3(0, 0, value.Item1);
-                _grid.Colors[v.i] = value.Item2;
+                var value = GetVValue(v.v.x, v.v.y);
+                _grid.Velocities[v.i] = new Vector3(value.Item1, value.Item2, 0);
+                _grid.Colors[v.i] = value.Item3;
             }
         }
 
         private float E(float x, float y)
         {
-            return DesiredTransformationNorm.y * x - desiredTransformation.x * y;
+            return Norm.y * x - Norm.x * y;
         }
 
         private float B(float r)
@@ -52,23 +52,32 @@ namespace Prototypes.Vector_Field._2D
             return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
         }
 
-        private (float, Color) GetPValue(float x, float y)
+        private float GetEDy()
+        {
+            return -Norm.y;
+        }
+
+        private float GetEDx()
+        {
+            return Norm.x;
+        }
+
+        private (float, float, Color) GetVValue(float x, float y)
         {
             var r = MathF.Pow(x, 2) + MathF.Pow(y, 2);
 
             if (r >= rO) // Outside the outer loop
             {
-                return (0, Color.white);
+                return (0, 0, Color.white);
             }
 
             if (r < rI) // Inside the inner loop
             {
-                return (E(x, y), Color.blue);
+                return (-GetEDy(), GetEDx(), Color.blue);
             }
 
             // Do blending here eventually
-            return ((1 - B(r)) * E(x, y), Color.red);
-            // return 0;
+            return (0, 0, Color.red);
         }
     }
 }

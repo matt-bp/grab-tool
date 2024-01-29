@@ -71,7 +71,7 @@ namespace Prototypes.Vector_Field
                 
                 // Change arrowLength to be the z value, that is why I'm not seeing a update :)
                 var arrowLength = Mathf.Abs(Velocities[p.i].z);
-                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLength, EventType.Repaint);
+                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), 0.2f, EventType.Repaint);
             }
             
             // foreach (var p in Points.Select((v, i) => new {v, i}))
