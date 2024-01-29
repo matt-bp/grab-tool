@@ -3,6 +3,7 @@ using System.Linq;
 using GrabTool.Math;
 using UnityEngine;
 using UnityEngine.Assertions;
+using GrabTool.Math;
 
 namespace Prototypes.Vector_Field._2D
 {
@@ -54,12 +55,12 @@ namespace Prototypes.Vector_Field._2D
 
         private float GetEDy()
         {
-            return -Norm.y;
+            return -Norm.U();
         }
 
         private float GetEDx()
         {
-            return Norm.x;
+            return Norm.V();
         }
 
         private (float, float, Color) GetVValue(float x, float y)

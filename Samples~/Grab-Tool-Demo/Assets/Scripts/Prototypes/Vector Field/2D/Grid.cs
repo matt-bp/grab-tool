@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Prototypes.Vector_Field
+namespace Prototypes.Vector_Field._2D
 {
     public class Grid : MonoBehaviour
     {
@@ -16,6 +16,7 @@ namespace Prototypes.Vector_Field
         public Color[] Colors { get; private set; }
 
         public int densityPerMeter = 10;
+        public bool useZAsLength;
 
         private void Awake()
         {
@@ -25,11 +26,12 @@ namespace Prototypes.Vector_Field
         private void Generate()
         {
             var centerX = xSize / 2.0f + 0.5f;
-            var centerY = xSize / 2.0f + 0.5f;
-
+            var centerY = ySize / 2.0f + 0.5f;
+            
+            
             var countX = xSize * densityPerMeter;
             var countY = ySize * densityPerMeter;
-
+            
             var increment = 1.0f / densityPerMeter;
 
             Points = new Vector3[(countX + 1) * (countY + 1)];
@@ -68,10 +70,10 @@ namespace Prototypes.Vector_Field
                     Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
                     continue;
                 };
+
+                var arrowLenght = useZAsLength ? Mathf.Abs(Velocities[p.i].z) : 0.2f;
                 
-                // Change arrowLength to be the z value, that is why I'm not seeing a update :)
-                var arrowLength = Mathf.Abs(Velocities[p.i].z);
-                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), 0.2f, EventType.Repaint);
+                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLenght, EventType.Repaint);
             }
             
             // foreach (var p in Points.Select((v, i) => new {v, i}))
