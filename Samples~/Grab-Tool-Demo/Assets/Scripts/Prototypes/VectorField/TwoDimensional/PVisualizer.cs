@@ -4,7 +4,7 @@ using GrabTool.Math;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Prototypes.Vector_Field._2D
+namespace Prototypes.VectorField.TwoDimensional
 {
     [RequireComponent(typeof(Grid))]
     public class PVisualizer : MonoBehaviour

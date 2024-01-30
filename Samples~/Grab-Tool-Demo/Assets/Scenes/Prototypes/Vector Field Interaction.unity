@@ -346,8 +346,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afd8c092e504a7c4cbd334401e025672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xSize: 4
-  ySize: 4
+  xSize: 10
+  ySize: 10
   densityPerMeter: 5
   useZAsLength: 0
 --- !u!4 &438670578

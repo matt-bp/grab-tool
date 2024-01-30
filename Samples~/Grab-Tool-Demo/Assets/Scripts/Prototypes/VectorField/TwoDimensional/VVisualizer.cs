@@ -3,9 +3,8 @@ using System.Linq;
 using GrabTool.Math;
 using UnityEngine;
 using UnityEngine.Assertions;
-using GrabTool.Math;
 
-namespace Prototypes.Vector_Field._2D
+namespace Prototypes.VectorField.TwoDimensional
 {
     [RequireComponent(typeof(Grid))]
     public class VVisualizer : MonoBehaviour
@@ -53,20 +52,55 @@ namespace Prototypes.Vector_Field._2D
             return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
         }
 
-        private float GetEDy()
+        private float DeDy()
         {
             return -Norm.U();
         }
 
-        private float GetEDx()
+        private float DeDx()
         {
             return Norm.V();
         }
 
+        private float DrDx(float x, float y)
+        {
+            return 4 * x;
+        }
+        
+        private float DrDy(float x, float y)
+        {
+            return 4 * y;
+        }
+
+        private float DbDr(float r)
+        {
+            return Bernstein.PolynomialDt(r, 4, 3) + Bernstein.PolynomialDt(r, 4, 4);
+        }
+
+        private float DbrDx(float r, float x, float y)
+        {
+            return DbDr(r) * DrDx(x, y);
+        }
+
+        private float DbrDy(float r, float x, float y)
+        {
+            return DbDr(r) * DrDy(x, y);
+        }
+
+        private float DpDx(float r, float x, float y)
+        {
+            return (1 - B(r)) * DeDx() - DbrDx(r, x, y) * E(x, y);
+        }
+        
+        private float DpDy(float r, float x, float y)
+        {
+            return (1 - B(r)) * DeDy() - DbrDy(r, x, y) * E(x, y);
+        }
+
         private (float, float, Color) GetVValue(float x, float y)
         {
-            var r = MathF.Pow(x, 2) + MathF.Pow(y, 2);
-
+            var r = (MathF.Pow(x, 2) + MathF.Pow(y, 2)) * 2;
+            
             if (r >= rO) // Outside the outer loop
             {
                 return (0, 0, Color.white);
@@ -74,11 +108,11 @@ namespace Prototypes.Vector_Field._2D
 
             if (r < rI) // Inside the inner loop
             {
-                return (-GetEDy(), GetEDx(), Color.blue);
+                return (-DeDy(), DeDx(), Color.blue);
             }
 
             // Do blending here eventually
-            return (0, 0, Color.red);
+            return (-DpDy(r, x, y), DpDx(r, x, y), Color.red);
         }
     }
 }

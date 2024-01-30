@@ -1,11 +1,8 @@
-using System;
 using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 
-namespace Prototypes.Vector_Field._2D
+namespace Prototypes.VectorField.TwoDimensional
 {
     public class Grid : MonoBehaviour
     {
