@@ -43,7 +43,7 @@ namespace Prototypes.Vector_Field._2D
 
         private float E(float x, float y)
         {
-            return Norm.y * x - Norm.x * y;
+            return Norm.V() * x - Norm.U() * y;
         }
 
         private float B(float r)

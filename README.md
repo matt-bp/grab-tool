@@ -25,3 +25,8 @@ To add it to your Unity project, to go the Package Manager window, click the `+`
 The mesh was created by myself.
 
 I got the wireframe shaders from https://github.com/Chaser324/unity-wireframe.
+
+
+## Attribution
+
+[Axis](https://skfb.ly/oLwns) by anasrar is licensed under [Creative Commons Attribution](http://creativecommons.org/licenses/by/4.0/).
