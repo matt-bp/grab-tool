@@ -15,6 +15,12 @@ namespace Prototypes.VectorField.TwoDimensional
         [SerializeField]
         private Vector2 desiredTransformation;
 
+        public Vector2 DesiredTransformation
+        {
+            get => desiredTransformation;
+            set => desiredTransformation = value;
+        }
+        
         private Vector2 Norm => desiredTransformation.normalized;
 
         [Tooltip("The outer loop cutoff")] [SerializeField]

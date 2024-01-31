@@ -388,7 +388,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 438670576}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8f9754e10cd4996b31c06698d0e4a33, type: 3}
   m_Name: 
@@ -410,6 +410,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   point: {x: 0, y: 0, z: 0}
   positionIndicator: {fileID: 1507799697}
+  vVisualizer: {fileID: 438670580}
 --- !u!1 &1410101024
 GameObject:
   m_ObjectHideFlags: 0
