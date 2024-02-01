@@ -1384,7 +1384,7 @@ MonoBehaviour:
   rI: 0.125
   rMultiplier: 1.35
   showGridVisualization: 1
-  updatePositions: 1
+  updatePositions: 0
 --- !u!114 &1981719131
 MonoBehaviour:
   m_ObjectHideFlags: 0
