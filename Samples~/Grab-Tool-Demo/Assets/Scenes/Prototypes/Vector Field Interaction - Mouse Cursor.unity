@@ -379,7 +379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   desiredTransformation: {x: -1, y: 0}
-  rO: 4
+  rO: 2
   rI: 1
 --- !u!114 &438670580
 MonoBehaviour:
@@ -394,8 +394,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   desiredTransformation: {x: -1, y: 0}
-  rO: 4
+  c: {x: 0, y: 0}
+  rO: 2
   rI: 1
+  rMultiplier: 1
 --- !u!114 &438670581
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,24 +1,29 @@
 using System;
 using GrabTool.Math;
-using Prototypes.VectorField.TwoDimensional;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions;
+using UnityEngine.Events;
 
-namespace Prototypes
+namespace Prototypes.VectorField.TwoDimensional
 {
-    public class DesiredTranslation : MonoBehaviour
+    public class MouseTranslation : MonoBehaviour
     {
-        [Header("Intersection Placeholders")] [SerializeField]
+        [Header("Intersection Placeholders")]
+        [Tooltip("This is where the click interaction would've started.")]
+        [SerializeField]
         private Vector3 point;
+
         [SerializeField] private GameObject positionIndicator;
-        [SerializeField] private VVisualizer vVisualizer;
-        
+
+        [Header("Model/Presenter")] [SerializeField]
+        private VectorFieldIntegrator fieldIntegrator;
+
         private Camera _camera;
 
         private Vector3? previousPosition;
         private Vector3? direction;
+
+        public UnityEvent<(Vector3, Vector3)> OnMouseUpdate;
 
         private void Start()
         {
@@ -42,10 +47,9 @@ namespace Prototypes
 
                     direction = diff != Vector3.zero ? diff : null;
 
-                    vVisualizer.DesiredTransformation = diff;
-                    vVisualizer.C = previousPosition.Value;
+                    OnMouseUpdate.Invoke((diff, previousPosition.Value));
                 }
-                
+
                 previousPosition = hit.Point;
             }
             else

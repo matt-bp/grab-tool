@@ -20,6 +20,15 @@ namespace Prototypes.VectorField.TwoDimensional
             get => desiredTransformation;
             set => desiredTransformation = value;
         }
+
+        [Tooltip("Current center of the vector field")] [SerializeField]
+        private Vector2 c;
+
+        public Vector2 C
+        {
+            get => c;
+            set => c = value;
+        }
         
         private Vector2 Norm => desiredTransformation.normalized;
 
@@ -29,6 +38,9 @@ namespace Prototypes.VectorField.TwoDimensional
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
 
+        [Tooltip("Multiplier for underlying r function")] [SerializeField] [Range(0.1f, 4.0f)]
+        private float rMultiplier = 0.1f;
+        
         private void Start()
         {
             _grid = GetComponent<Grid>();
@@ -105,7 +117,9 @@ namespace Prototypes.VectorField.TwoDimensional
 
         private (float, float, Color) GetVValue(float x, float y)
         {
-            var r = (MathF.Pow(x, 2) + MathF.Pow(y, 2)) * 2;
+            var vec = new Vector2(x, y);
+
+            var r = rMultiplier * Vector2.Distance(vec, c);
             
             if (r >= rO) // Outside the outer loop
             {
@@ -118,7 +132,7 @@ namespace Prototypes.VectorField.TwoDimensional
             }
 
             // Do blending here eventually
-            return (-DpDy(r, x, y), DpDx(r, x, y), Color.red);
+            return (-DpDy(r, x - c.x, y - c.y), DpDx(r, x - c.x, y - c.y), Color.red);
         }
     }
 }
