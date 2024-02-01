@@ -21,7 +21,9 @@ namespace Prototypes.VectorField.TwoDimensional
 
         private readonly VectorField2D _vectorField2D = new();
 
-        private bool gotInput;
+        private bool doUpdate;
+
+        private float d;
         
         private void Start()
         {
@@ -31,8 +33,6 @@ namespace Prototypes.VectorField.TwoDimensional
 
         private void Update()
         {
-            if (!gotInput) return;
-            
             _vectorField2D.Ri = rI;
             _vectorField2D.Ro = rO;
             
@@ -50,16 +50,31 @@ namespace Prototypes.VectorField.TwoDimensional
         {
             _vectorField2D.C = input.Center;
             _vectorField2D.DesiredTranslation = input.DesiredTranslation;
-            gotInput = true;
+            d = Vector3.Magnitude(input.DesiredTranslation);
+            doUpdate = true;
         }
-        //
-        // private void FixedUpdate()
-        // {
-        //     foreach (var particle in _container.Particles)
-        //     {
-        //         var position = particle.position;
-        //         var v = _vectorField2D.GetVelocity(position.x, position.y);
-        //     }
-        // }
+        
+        private void FixedUpdate()
+        {
+            if (!doUpdate) return;
+            
+            foreach (var particle in _container.Particles)
+            {
+                var position = particle.position;
+                var v = _vectorField2D.GetVelocity(position.x, position.y);
+
+                if (v.magnitude == 0) continue;
+                
+                var t = d / v.magnitude;
+                
+                // Debug.Log($"Time update is {t}");
+
+                position += t * new Vector3(v.x, v.y, 0);
+                
+                particle.position = position;
+            }
+
+            doUpdate = false;
+        }
     }
 }

@@ -128,7 +128,7 @@ namespace Prototypes.VectorField.TwoDimensional
 
             if (r < rI) // Inside the inner loop
             {
-                return (-DeDy(), DeDx(), Color.blue);
+                return (-DeDy(), DeDx(), Color.green);
             }
 
             // Do blending here eventually
