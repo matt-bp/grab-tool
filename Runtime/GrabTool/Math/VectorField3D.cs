@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace GrabTool.Math
 {
-    public class VectorField
+    public class VectorField3D
     {
         /// <summary>
         /// R value specifying the inner ring, where the vector field is constant.

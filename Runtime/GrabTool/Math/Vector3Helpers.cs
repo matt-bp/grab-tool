@@ -22,23 +22,24 @@ namespace GrabTool.Math
             bool TryGetOrthogonal(Vector3 axis, out Vector3 orthogonalVec)
             {
                 var test = Vector3.Cross(axis, vec);
-                orthogonalVec = test;
-                return test.magnitude < float.Epsilon;
+                orthogonalVec = test.normalized;
+                // If axis and vector are in line, the magnitude will be close to zero.
+                return test.magnitude > Vector3.kEpsilon;
             }
 
             if (TryGetOrthogonal(Vector3.right, out var inYOrZ))
             {
-                return inYOrZ.normalized;
+                return inYOrZ;
             } 
             
             if (TryGetOrthogonal(Vector3.up, out var inXOrZ))
             {
-                return inXOrZ.normalized;
+                return inXOrZ;
             }
             
             if (TryGetOrthogonal(Vector3.forward, out var inXOrY))
             {
-                return inXOrY.normalized;
+                return inXOrY;
             }
 
             throw new ArgumentException($"Cant find an orthogonal vector to {vec}");
