@@ -12,6 +12,7 @@ namespace GrabTool.Math
         /// R value on the outer edge, past which the vector field will be zero.
         /// </summary>
         public float Ro { get; set; }
+        public float RMultiplier { get; set; }
         public Vector2 C { get; set; }
         public Vector2 DesiredTranslation { get; set; }
 
@@ -22,7 +23,7 @@ namespace GrabTool.Math
         {
             var vec = new Vector2(x, y);
 
-            var r = Vector2.Distance(vec, C);
+            var r = RMultiplier * Vector2.Distance(vec, C);
             
             if (r >= Ro) // Outside the outer loop
             {

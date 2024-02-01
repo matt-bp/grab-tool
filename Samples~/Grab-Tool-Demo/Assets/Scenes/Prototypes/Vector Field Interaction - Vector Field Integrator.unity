@@ -1380,8 +1380,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95461273acb49caad695953708ca96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rO: 2
-  rI: 1
+  rO: 1
+  rI: 0.125
+  rMultiplier: 1.35
+  showGridVisualization: 1
+  updatePositions: 1
 --- !u!114 &1981719131
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -11,13 +11,16 @@ namespace Prototypes.VectorField.TwoDimensional
     {
         [Tooltip("The outer loop cutoff")] [SerializeField]
         private float rO;
-
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
+        [Tooltip("Multiplier for underlying r function")] [SerializeField] [Range(0.1f, 4.0f)]
+        private float rMultiplier = 0.1f;
         
         private Grid _grid;
+        [SerializeField] private bool showGridVisualization;
 
         private ParticleContainer _container;
+        [SerializeField] private bool updatePositions;
 
         private readonly VectorField2D _vectorField2D = new();
 
@@ -35,14 +38,23 @@ namespace Prototypes.VectorField.TwoDimensional
         {
             _vectorField2D.Ri = rI;
             _vectorField2D.Ro = rO;
+            _vectorField2D.RMultiplier = rMultiplier;
             
             Assert.IsTrue(rI < rO);
-            
-            foreach (var v in _grid.Points.Select((v, i) => new { v, i }))
+
+            if (showGridVisualization)
             {
-                var value = _vectorField2D.GetVelocity(v.v.x, v.v.y);
-                _grid.Velocities[v.i] = value;
-                _grid.Colors[v.i] = Color.blue;
+                _grid.enabled = true;
+                foreach (var v in _grid.Points.Select((v, i) => new { v, i }))
+                {
+                    var value = _vectorField2D.GetVelocity(v.v.x, v.v.y);
+                    _grid.Velocities[v.i] = value;
+                    _grid.Colors[v.i] = Color.blue;
+                }
+            }
+            else
+            {
+                _grid.enabled = false;
             }
         }
 
@@ -69,9 +81,12 @@ namespace Prototypes.VectorField.TwoDimensional
                 
                 // Debug.Log($"Time update is {t}");
 
-                position += t * new Vector3(v.x, v.y, 0);
+                if (updatePositions)
+                {
+                    position += t * new Vector3(v.x, v.y, 0);
                 
-                particle.position = position;
+                    particle.position = position;
+                }
             }
 
             doUpdate = false;
