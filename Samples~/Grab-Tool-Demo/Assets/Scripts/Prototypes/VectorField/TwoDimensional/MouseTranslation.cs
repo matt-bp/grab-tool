@@ -14,10 +14,7 @@ namespace Prototypes.VectorField.TwoDimensional
         private Vector3 point;
 
         [SerializeField] private GameObject positionIndicator;
-
-        [Header("Model/Presenter")] [SerializeField]
-        private VectorFieldIntegrator fieldIntegrator;
-
+        
         private Camera _camera;
 
         private Vector3? previousPosition;

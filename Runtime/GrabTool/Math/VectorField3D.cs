@@ -71,7 +71,9 @@ namespace GrabTool.Math
         private Vector3 DbrDx(float r, Vector3 x)
         {
             var dRdX = (x - C) / r;
-            return DbDr(r) * dRdX;
+            // I'm getting NaNs from here, specifically from DbDr, why? What is the other implementation doing? Do I need to send in the ratio? I think so.
+            var temp = DbDr(r) * dRdX;
+            return temp;
         }
         
         /// <summary>

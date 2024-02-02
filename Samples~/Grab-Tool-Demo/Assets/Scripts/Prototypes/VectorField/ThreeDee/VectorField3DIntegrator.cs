@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 namespace Prototypes.VectorField.ThreeDee
 {
-    [RequireComponent(typeof(Grid3D), typeof(ParticleContainer))]
+    [RequireComponent(typeof(ParticleContainer))]
     public class VectorField3DIntegrator : MonoBehaviour
     {
         [Tooltip("The outer loop cutoff")] [SerializeField]
@@ -15,7 +15,7 @@ namespace Prototypes.VectorField.ThreeDee
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
         
-        private Grid3D _grid;
+        [SerializeField] private Grid3D grid;
         [SerializeField] private bool showGridVisualization;
 
         private ParticleContainer _container;
@@ -29,7 +29,6 @@ namespace Prototypes.VectorField.ThreeDee
         private void Start()
         {
             _container = GetComponent<ParticleContainer>();
-            _grid = GetComponent<Grid3D>();
         }
 
         private void Update()
@@ -41,17 +40,18 @@ namespace Prototypes.VectorField.ThreeDee
 
             if (showGridVisualization)
             {
-                _grid.enabled = true;
-                foreach (var v in _grid.Points.Select((v, i) => new { v, i }))
+                grid.enabled = true;
+                foreach (var v in grid.Points.Select((v, i) => new { v, i }))
                 {
-                    var value = _vectorField3D.GetVelocity(v.v);
-                    _grid.Velocities[v.i] = value;
-                    _grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
+                    var newPoint = grid.transform.TransformPoint(v.v);
+                    var value = _vectorField3D.GetVelocity(newPoint);
+                    grid.Velocities[v.i] = value;
+                    grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
                 }
             }
             else
             {
-                _grid.enabled = false;
+                grid.enabled = false;
             }
         }
 
@@ -59,6 +59,7 @@ namespace Prototypes.VectorField.ThreeDee
         {
             _vectorField3D.C = input.Center;
             _vectorField3D.DesiredTranslation = input.DesiredTranslation;
+            grid.transform.position = input.Center;
             doUpdate = true;
         }
 
