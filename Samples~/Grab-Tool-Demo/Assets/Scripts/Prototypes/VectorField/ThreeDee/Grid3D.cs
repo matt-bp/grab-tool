@@ -14,6 +14,8 @@ namespace Prototypes.VectorField.ThreeDee
 
         public int densityPerMeter = 10;
 
+        public bool inXYPlane;
+
         private void Awake()
         {
             Generate();
@@ -31,25 +33,45 @@ namespace Prototypes.VectorField.ThreeDee
             
             var increment = 1.0f / densityPerMeter;
 
-            var arraySize = (countX + 1) * (countY + 1) * (countZ + 1);
-            Points = new Vector3[arraySize];
-            Velocities = new Vector3[arraySize]; 
-            Colors = new Color[arraySize];
-
-            var i = 0;
-            for (float z = 0; z <= countZ; z++)
+            if (inXYPlane)
             {
+                var arraySize = (countX + 1) * (countY + 1) * 2; // * (countZ + 1);
+                Points = new Vector3[arraySize];
+                Velocities = new Vector3[arraySize]; 
+                Colors = new Color[arraySize];
+
+                var i = 0;
+                
                 for (float y = 0; y <= countY; y++)
                 {
                     for (var x = 0; x <= countX; x++, i++)
                     {
                         var actualX = x * increment;
                         var actualY = y * increment;
-                        var actualZ = z * increment;
-                    
-                        Points[i] = new Vector3(centerX - actualX, centerY - actualY, centerZ - actualZ);
+            
+                        Points[i] = new Vector3(centerX - actualX, centerY - actualY);
                     }
-                }  
+                }
+            }
+            else // In XZ Plane
+            {
+                var arraySize = (countX + 1) * (countZ + 1) * 2; // * (countZ + 1);
+                Points = new Vector3[arraySize];
+                Velocities = new Vector3[arraySize]; 
+                Colors = new Color[arraySize];
+
+                var i = 0;
+                            
+                for (float z = 0; z <= countZ; z++)
+                {
+                    for (var x = 0; x <= countX; x++, i++)
+                    {
+                        var actualX = x * increment;
+                        var actualZ = z * increment;
+            
+                        Points[i] = new Vector3(centerX - actualX, 0, centerZ - actualZ);
+                    }
+                }
             }
         }
 

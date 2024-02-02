@@ -1400,3 +1400,4 @@ MonoBehaviour:
   ySize: 10
   zSize: 10
   densityPerMeter: 5
+  inXYPlane: 1

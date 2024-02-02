@@ -36,73 +36,52 @@ namespace GrabTool.Math
 
             if (r < Ri) // Inside the inner loop
             {
-                var gradientP = u;
-                var gradientQ = w;
-
                 wasInner = true;
-                return Vector3.Cross(gradientP, gradientQ);
+                return Vector3.Cross(u, w); // Gradient P x Gradient Q
             }
 
-            return Vector3.zero;
+            var e = Vector3.Dot(u, position - C);
+            var f = Vector3.Dot(w, position - C);
+            
+            var gradE = u;
+            var gradF = w;
+
+            var gradP = (1 - B(r)) * gradE + DbrDx(r, position) * e;
+            var gradQ = (1 - B(r)) * gradF + DbrDx(r, position) * f;
+            
+            return Vector3.Cross(gradP, gradQ);
         }
 
         private float R(Vector3 pos) => Vector3.Distance(pos, C);
         
-        // private float E(float x, float y)
-        // {
-        //     return TranslationNorm.V() * x - TranslationNorm.U() * y;
-        // }
-        //
-        // private float B(float r)
-        // {
-        //     var ratio = (r - Ri) / (Ro - Ri);
-        //
-        //     return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
-        // }
+        private float B(float r)
+        {
+            var ratio = (r - Ri) / (Ro - Ri);
+        
+            return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
+        }
 
-        // private float DeDy()
-        // {
-        //     return -TranslationNorm.U();
-        // }
-        //
-        // private float DeDx()
-        // {
-        //     return TranslationNorm.V();
-        // }
-        //
-        // private float DrDx(float x, float y)
-        // {
-        //     return 4 * x;
-        // }
-        //
-        // private float DrDy(float x, float y)
-        // {
-        //     return 4 * y;
-        // }
-        //
-        // private float DbDr(float r)
-        // {
-        //     return Bernstein.PolynomialDt(r, 4, 3) + Bernstein.PolynomialDt(r, 4, 4);
-        // }
-        //
-        // private float DbrDx(float r, float x, float y)
-        // {
-        //     return DbDr(r) * DrDx(x, y);
-        // }
-        //
-        // private float DbrDy(float r, float x, float y)
-        // {
-        //     return DbDr(r) * DrDy(x, y);
-        // }
-        //
-        // private float DpDx(float r, float x, float y)
-        // {
-        //     return (1 - B(r)) * DeDx() - DbrDx(r, x, y) * E(x, y);
-        // }
-        //
-        // private float DpDy(float r, float x, float y)
-        // {
-        //     return (1 - B(r)) * DeDy() - DbrDy(r, x, y) * E(x, y);
-        // }
+        /// <summary>
+        /// <para>Derivative of the Bernstein polynomial sums.</para>
+        /// <para>We needed to take the derivative of B(r(x)). We can take the the derivative dBdR, and then dRdX based on the chain rule.</para>
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        private Vector3 DbrDx(float r, Vector3 x)
+        {
+            var dRdX = (x - C) / r;
+            return DbDr(r) * dRdX;
+        }
+        
+        /// <summary>
+        /// <para>Derivative of Bernstein polynomial sum with respect to R. This is based on the chain rule. See Db for more details.</para>
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        private float DbDr(float r)
+        {
+            return Bernstein.PolynomialDt(r, 4, 3) + Bernstein.PolynomialDt(r, 4, 4);
+        }
     }
 }
