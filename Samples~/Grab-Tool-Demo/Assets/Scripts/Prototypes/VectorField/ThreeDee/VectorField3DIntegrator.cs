@@ -46,7 +46,7 @@ namespace Prototypes.VectorField.ThreeDee
                 {
                     var value = _vectorField3D.GetVelocity(v.v);
                     _grid.Velocities[v.i] = value;
-                    _grid.Colors[v.i] = Color.blue;
+                    _grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
                 }
             }
             else

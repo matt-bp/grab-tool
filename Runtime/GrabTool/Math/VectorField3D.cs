@@ -18,15 +18,19 @@ namespace GrabTool.Math
         // Does this need to be normalized? Yes on page 3, above equation 6.
         private Vector3 V => DesiredTranslation.normalized;
 
+        public bool wasInner;
+
         public Vector3 GetVelocity(Vector3 position)
         {
-            var r = R(position);
+            wasInner = false;
             
+            var r = R(position);
+
             if (r >= Ro) // Outside the outer loop
             {
                 return Vector3.zero;
             }
-
+            
             var u = Vector3Helpers.OrthogonalVector(V);
             var w = Vector3.Cross(V, u).normalized;
 
@@ -35,6 +39,7 @@ namespace GrabTool.Math
                 var gradientP = u;
                 var gradientQ = w;
 
+                wasInner = true;
                 return Vector3.Cross(gradientP, gradientQ);
             }
 

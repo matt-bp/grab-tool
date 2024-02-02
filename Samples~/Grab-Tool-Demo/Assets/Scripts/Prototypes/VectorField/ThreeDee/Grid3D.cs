@@ -57,28 +57,24 @@ namespace Prototypes.VectorField.ThreeDee
         {
             if (Points == null) return;
             
-            // foreach (var p in Points.Select((v, i) => new {v, i}))
-            // {
-            //     Handles.color = Colors[p.i];
-            //     
-            //     if (Velocities[p.i] == Vector3.zero)
-            //     {
-            //         Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
-            //         continue;
-            //     };
-            //
-            //     var arrowLenght = useZAsLength ? Mathf.Abs(Velocities[p.i].z) : 0.2f;
-            //     
-            //     Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLenght, EventType.Repaint);
-            // }
-            
-            Gizmos.color = Color.black;
             foreach (var p in Points.Select((v, i) => new {v, i}))
             {
-                Gizmos.DrawSphere(p.v, 0.1f);
+                if (Velocities[p.i] == Vector3.zero)
+                {
+                    // Handles.color = Color.gray;
+                    // Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0, EventType.Repaint);    
+                    continue;
+                };
+
+                Handles.color = Colors[p.i];
+                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), 0.2f, EventType.Repaint);
             }
             
-
+            // Gizmos.color = Color.black;
+            // foreach (var p in Points.Select((v, i) => new {v, i}))
+            // {
+            //     Gizmos.DrawSphere(p.v, 0.1f);
+            // }
         }
     }
 }

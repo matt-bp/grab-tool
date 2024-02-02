@@ -1382,7 +1382,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rO: 4
   rI: 1
-  showGridVisualization: 0
+  showGridVisualization: 1
   updatePositions: 0
 --- !u!114 &1981719133
 MonoBehaviour:
@@ -1399,4 +1399,4 @@ MonoBehaviour:
   xSize: 10
   ySize: 10
   zSize: 10
-  densityPerMeter: 1
+  densityPerMeter: 5
