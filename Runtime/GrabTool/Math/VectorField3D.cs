@@ -12,15 +12,12 @@ namespace GrabTool.Math
         /// R value on the outer edge, past which the vector field will be zero.
         /// </summary>
         public float Ro { get; set; }
-        public float RMultiplier { get; set; }
         public Vector3 C { get; set; }
         public Vector3 DesiredTranslation { get; set; }
 
         // Does this need to be normalized? Yes on page 3, above equation 6.
         private Vector3 V => DesiredTranslation.normalized;
-        private Vector3 U => Vector3Helpers.OrthogonalVector(V);
-        private Vector3 W => Vector3.Cross(V, U).normalized;
-        
+
         public Vector3 GetVelocity(Vector3 position)
         {
             var r = R(position);
@@ -30,10 +27,13 @@ namespace GrabTool.Math
                 return Vector3.zero;
             }
 
+            var u = Vector3Helpers.OrthogonalVector(V);
+            var w = Vector3.Cross(V, u).normalized;
+
             if (r < Ri) // Inside the inner loop
             {
-                var gradientP = GradientP();
-                var gradientQ = GradientQ();
+                var gradientP = u;
+                var gradientQ = w;
 
                 return Vector3.Cross(gradientP, gradientQ);
             }
@@ -41,11 +41,8 @@ namespace GrabTool.Math
             return Vector3.zero;
         }
 
-        private float R(Vector3 pos) => RMultiplier * Vector3.Distance(pos, C);
-
-        private Vector3 GradientP() => U;
-        private Vector3 GradientQ() => W;
-
+        private float R(Vector3 pos) => Vector3.Distance(pos, C);
+        
         // private float E(float x, float y)
         // {
         //     return TranslationNorm.V() * x - TranslationNorm.U() * y;

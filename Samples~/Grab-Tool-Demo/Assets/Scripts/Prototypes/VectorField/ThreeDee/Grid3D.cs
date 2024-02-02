@@ -1,0 +1,84 @@
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+namespace Prototypes.VectorField.ThreeDee
+{
+    public class Grid3D : MonoBehaviour
+    {
+        public int xSize, ySize, zSize;
+        public Vector3[] Points { get; private set; }
+        
+        public Vector3[] Velocities { get; private set; }
+        public Color[] Colors { get; private set; }
+
+        public int densityPerMeter = 10;
+
+        private void Awake()
+        {
+            Generate();
+        }
+
+        private void Generate()
+        {
+            var centerX = xSize / 2.0f;
+            var centerY = ySize / 2.0f;
+            var centerZ = zSize / 2.0f;
+            
+            var countX = xSize * densityPerMeter;
+            var countY = ySize * densityPerMeter;
+            var countZ = zSize * densityPerMeter;
+            
+            var increment = 1.0f / densityPerMeter;
+
+            var arraySize = (countX + 1) * (countY + 1) * (countZ + 1);
+            Points = new Vector3[arraySize];
+            Velocities = new Vector3[arraySize]; 
+            Colors = new Color[arraySize];
+
+            var i = 0;
+            for (float z = 0; z <= countZ; z++)
+            {
+                for (float y = 0; y <= countY; y++)
+                {
+                    for (var x = 0; x <= countX; x++, i++)
+                    {
+                        var actualX = x * increment;
+                        var actualY = y * increment;
+                        var actualZ = z * increment;
+                    
+                        Points[i] = new Vector3(centerX - actualX, centerY - actualY, centerZ - actualZ);
+                    }
+                }  
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (Points == null) return;
+            
+            // foreach (var p in Points.Select((v, i) => new {v, i}))
+            // {
+            //     Handles.color = Colors[p.i];
+            //     
+            //     if (Velocities[p.i] == Vector3.zero)
+            //     {
+            //         Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
+            //         continue;
+            //     };
+            //
+            //     var arrowLenght = useZAsLength ? Mathf.Abs(Velocities[p.i].z) : 0.2f;
+            //     
+            //     Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLenght, EventType.Repaint);
+            // }
+            
+            Gizmos.color = Color.black;
+            foreach (var p in Points.Select((v, i) => new {v, i}))
+            {
+                Gizmos.DrawSphere(p.v, 0.1f);
+            }
+            
+
+        }
+    }
+}

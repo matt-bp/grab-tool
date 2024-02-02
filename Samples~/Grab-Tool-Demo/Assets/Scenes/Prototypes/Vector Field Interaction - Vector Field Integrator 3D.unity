@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1289,11 +1289,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1981719128}
   - component: {fileID: 1981719127}
-  - component: {fileID: 1981719131}
-  - component: {fileID: 1981719130}
+  - component: {fileID: 1981719133}
+  - component: {fileID: 1981719132}
   - component: {fileID: 1981719129}
   m_Layer: 0
-  m_Name: Grid2
+  m_Name: Grid3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1351,12 +1351,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   point: {x: 0, y: 0, z: 0}
   positionIndicator: {fileID: 1439091567}
-  fieldIntegrator: {fileID: 1981719130}
+  fieldIntegrator: {fileID: 0}
   OnMouseUpdate:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1981719130}
-        m_TargetAssemblyTypeName: Prototypes.VectorField.TwoDimensional.VectorFieldIntegrator,
+      - m_Target: {fileID: 1981719132}
+        m_TargetAssemblyTypeName: Prototypes.VectorField.ThreeDee.VectorField3DIntegrator,
           Assembly-CSharp
         m_MethodName: HandleMouseMove
         m_Mode: 0
@@ -1368,7 +1368,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1981719130
+--- !u!114 &1981719132
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1377,15 +1377,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1981719126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f95461273acb49caad695953708ca96a, type: 3}
+  m_Script: {fileID: 11500000, guid: f52c1edf3adb4f45bb703495a0f22d24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rO: 1
-  rI: 0.125
-  rMultiplier: 1.35
-  showGridVisualization: 1
+  rO: 4
+  rI: 1
+  showGridVisualization: 0
   updatePositions: 0
---- !u!114 &1981719131
+--- !u!114 &1981719133
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1394,10 +1393,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1981719126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afd8c092e504a7c4cbd334401e025672, type: 3}
+  m_Script: {fileID: 11500000, guid: ffd8923cb5224d9597966306aaa80d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   xSize: 10
   ySize: 10
-  densityPerMeter: 5
-  useZAsLength: 0
+  zSize: 10
+  densityPerMeter: 1

@@ -6,18 +6,16 @@ using UnityEngine.Assertions;
 
 namespace Prototypes.VectorField.ThreeDee
 {
-    public class VectorFieldIntegrator : MonoBehaviour
+    [RequireComponent(typeof(Grid3D), typeof(ParticleContainer))]
+    public class VectorField3DIntegrator : MonoBehaviour
     {
         [Tooltip("The outer loop cutoff")] [SerializeField]
         private float rO;
 
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
-
-        [Tooltip("Multiplier for underlying r function")] [SerializeField] [Range(0.1f, 4.0f)]
-        private float rMultiplier = 0.1f;
-
-        private TwoDimensional.Grid _grid;
+        
+        private Grid3D _grid;
         [SerializeField] private bool showGridVisualization;
 
         private ParticleContainer _container;
@@ -27,19 +25,17 @@ namespace Prototypes.VectorField.ThreeDee
 
         private bool doUpdate;
 
-        private float d;
 
         private void Start()
         {
             _container = GetComponent<ParticleContainer>();
-            _grid = GetComponent<TwoDimensional.Grid>();
+            _grid = GetComponent<Grid3D>();
         }
 
         private void Update()
         {
             _vectorField3D.Ri = rI;
             _vectorField3D.Ro = rO;
-            _vectorField3D.RMultiplier = rMultiplier;
 
             Assert.IsTrue(rI < rO);
 
@@ -63,7 +59,6 @@ namespace Prototypes.VectorField.ThreeDee
         {
             _vectorField3D.C = input.Center;
             _vectorField3D.DesiredTranslation = input.DesiredTranslation;
-            d = Vector3.Magnitude(input.DesiredTranslation);
             doUpdate = true;
         }
 
@@ -78,6 +73,7 @@ namespace Prototypes.VectorField.ThreeDee
 
                 if (v.magnitude == 0) continue;
 
+                var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
                 var t = d / v.magnitude;
 
                 // Debug.Log($"Time update is {t}");
