@@ -1380,7 +1380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rO: 4
-  rI: 0.7
+  rI: 0.8
   grid: {fileID: 1984307995}
   showGridVisualization: 1
   updatePositions: 0

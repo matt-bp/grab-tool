@@ -17,9 +17,12 @@ namespace GrabTool.Mesh
         private MeshHistory _history;
         private readonly InputState _inputState = new();
 
+        [Header("Vector Field Settings")]
         [SerializeField] private MeshFilter meshToCheckCollision;
         private VectorField3DIntegrator _integrator;
-        private UnityEngine.Mesh meshToUpdate => meshToCheckCollision.sharedMesh;
+        [SerializeField] private float ri;
+        [SerializeField] private float ro;
+        // private UnityEngine.Mesh currentMesh => meshToCheckCollision.sharedMesh;
         // private MeshCollider meshCollider => meshToCheckCollision.gameObject.GetComponent<MeshCollider>();
 
         private void Start()
@@ -27,7 +30,7 @@ namespace GrabTool.Mesh
             _camera = Camera.main;
             _mouseIndicatorState =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
-            _integrator = new VectorField3DIntegrator(0.8f, 4.0f);
+            _integrator = new VectorField3DIntegrator(ri, ro);
         }
 
         // Update is called once per frame

@@ -654,3 +654,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   meshToCheckCollision: {fileID: 1897364018}
+  ri: 0.8
+  ro: 2
