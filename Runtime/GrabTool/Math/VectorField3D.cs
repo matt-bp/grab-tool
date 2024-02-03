@@ -45,9 +45,11 @@ namespace GrabTool.Math
             
             var gradE = u;
             var gradF = w;
+            
+            var ratio = (r - Ri) / (Ro - Ri);
 
-            var gradP = (1 - B(r)) * gradE + DbrDx(r, position) * e;
-            var gradQ = (1 - B(r)) * gradF + DbrDx(r, position) * f;
+            var gradP = (1 - B(ratio)) * gradE + DbrDx(ratio, position) * e;
+            var gradQ = (1 - B(ratio)) * gradF + DbrDx(ratio, position) * f;
             
             return Vector3.Cross(gradP, gradQ);
         }
@@ -56,9 +58,7 @@ namespace GrabTool.Math
         
         private float B(float r)
         {
-            var ratio = (r - Ri) / (Ro - Ri);
-        
-            return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
+            return Bernstein.Polynomial(r, 4, 3) + Bernstein.Polynomial(r, 4, 4);
         }
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace GrabTool.Math
         /// <returns></returns>
         private Vector3 DbrDx(float r, Vector3 x)
         {
+            if (r == 0) return Vector3.zero; // DbDr(r) will be zero anyways, seems like a reasonable default.
+
             var dRdX = (x - C) / r;
-            // I'm getting NaNs from here, specifically from DbDr, why? What is the other implementation doing? Do I need to send in the ratio? I think so.
-            var temp = DbDr(r) * dRdX;
-            return temp;
+            return DbDr(r) * dRdX;
         }
         
         /// <summary>

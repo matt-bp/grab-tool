@@ -6,7 +6,7 @@ namespace GrabTool.UnitTests.Runtime.Math
     public class VectorField3DTests
     {
         [Test]
-        public void GetVelocity_WithNewPoint_ShouldReturnNan()
+        public void GetVelocity_WithNewPoint_ShouldNotReturnNan()
         {
             var vf = new GrabTool.Math.VectorField3D
             {
@@ -19,9 +19,9 @@ namespace GrabTool.UnitTests.Runtime.Math
 
             var result = vf.GetVelocity(point);
 
-            Assert.That(result.x, Is.NaN);
-            Assert.That(result.y, Is.NaN);
-            Assert.That(result.z, Is.NaN);
+            Assert.That(result.x, Is.Not.NaN);
+            Assert.That(result.y, Is.Not.NaN);
+            Assert.That(result.z, Is.Not.NaN);
         }
     }
 }
