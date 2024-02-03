@@ -79,18 +79,16 @@ namespace GrabTool.Mesh
                 _mouseIndicatorState.Show();
                 _mouseIndicatorState.UpdatePosition(worldSpacePosition, rO);
 
-                if (Input.GetMouseButtonDown(0))
-                {
-                    _inputState.StartTracking(worldSpacePosition);
-
-                    Debug.Log("Start!");
-
-                    // if (_history is null)
-                    // {
-                    //     Debug.Log("Starting history");
-                    //     _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
-                    // }
-                }
+                // We press the mouse button to start updating the mesh
+                if (!Input.GetMouseButtonDown(0)) return;
+                
+                _inputState.StartTracking(worldSpacePosition);
+                
+                // if (_history is null)
+                // {
+                //     Debug.Log("Starting history");
+                //     _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                // }
             }
             else
             {
@@ -111,11 +109,10 @@ namespace GrabTool.Mesh
                 }
             }
 
-            if (Input.GetMouseButtonUp(0)) // If we stopped pressing the mouse button
-            {
-                Debug.Log("End!");
-                _inputState.StopTracking();
-            }
+            // If we don't let go of the mouse button, we are still tracking!
+            if (!Input.GetMouseButtonUp(0)) return;
+            
+            _inputState.StopTracking();
         }
 
         private bool TryGetPointOnParallelToCameraPlane(Ray ray, out Vector3 point)
