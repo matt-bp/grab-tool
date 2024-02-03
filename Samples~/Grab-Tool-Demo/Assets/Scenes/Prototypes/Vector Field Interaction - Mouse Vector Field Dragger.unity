@@ -890,7 +890,7 @@ MonoBehaviour:
   ySize: 8
   zSize: 8
   densityPerMeter: 4
-  inXYPlane: 0
+  inXYPlane: 1
 --- !u!1 &1410101024
 GameObject:
   m_ObjectHideFlags: 0
@@ -1299,6 +1299,7 @@ MonoBehaviour:
   rI: 0.8
   grid: {fileID: 1244606841}
   showGridVisualization: 1
+  updateGridWithMouse: 1
   meshToCheckCollision: {fileID: 1897364020}
   mouseIndicatorPrefab: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   selectionMouseIndicator: {fileID: 661118260}

@@ -21,6 +21,7 @@ namespace GrabTool.Mesh
         [Header("Vector grid visualization")]
         [SerializeField] private Grid3D grid;
         [SerializeField] private bool showGridVisualization;
+        [SerializeField] private bool updateGridWithMouse;
         //
         // [SerializeField] private GameObject[] thingsToUpdate;
         // [SerializeField] private bool updatePositions;
@@ -138,15 +139,19 @@ namespace GrabTool.Mesh
 
         private void ProcessMouseMovement(Vector3 point)
         {
-
+            if (!_previousMousePosition.HasValue)
+            {
+                _previousMousePosition = point;
+                return;
+            }
+            
             _vectorField3D.C = point;
-            // _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
-            _vectorField3D.DesiredTranslation = Vector3.up;
+            _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
             selectionMouseIndicator.transform.position = point;
-            // grid.transform.position = point; // positions shouldn't actually move, I want to see the velocities
+            grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
             doFixedUpdate = true;
             
-            _previousMousePosition ??= point;
+            _previousMousePosition = point;
         }
 
         private void FixedUpdate()
