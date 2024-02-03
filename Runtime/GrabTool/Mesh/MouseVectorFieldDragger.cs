@@ -36,8 +36,6 @@ namespace GrabTool.Mesh
         [SerializeField] private GameObject selectionMouseIndicator;
         private Vector3? _previousMousePosition;
 
-        private bool doFixedUpdate;
-
         private void Start()
         {
             Assert.IsFalse(System.Math.Abs(rO - rI) < float.Epsilon);
@@ -115,6 +113,7 @@ namespace GrabTool.Mesh
             {
                 Debug.Log("End!");
                 _inputState.StopTracking();
+                _previousMousePosition = null;
             }
         }
 
@@ -147,20 +146,12 @@ namespace GrabTool.Mesh
             _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
             selectionMouseIndicator.transform.position = point;
             grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
-            doFixedUpdate = true;
-
-            _previousMousePosition = point;
-        }
-
-        private void FixedUpdate()
-        {
-            if (!doFixedUpdate) return;
-
+            
             UpdateGridVisualization();
 
             UpdateThingsToUpdate();
 
-            doFixedUpdate = false;
+            _previousMousePosition = point;
         }
 
         private void UpdateGridVisualization()
@@ -184,6 +175,8 @@ namespace GrabTool.Mesh
 
         private void UpdateThingsToUpdate()
         {
+            var total = new List<float>();
+            
             foreach (var particle in thingsToUpdate)
             {
                 var position = particle.transform.position;
@@ -191,15 +184,25 @@ namespace GrabTool.Mesh
 
                 if (v.magnitude == 0) continue;
 
+                // If we know the desired translation, then we know a previous and current position,
+                // which means we can get the time it took to move from previous to current, and use
+                // that as our time step?
+                // This make the speed of the mouse important, do I want that?
+                // This is the same as getting the length between the current and previous point
                 var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
-                var t = d / v.magnitude;
-
+                // Alternatives, do adaptive time stepping, for a set amount of time?
+                // var t = d / v.magnitude;
+                var t = Mathf.Min(2, d / v.magnitude);
+                // var t = Time.deltaTime; // This didn't work, the resulting velocity was too slow
                 // Debug.Log($"Time update is {t}");
+                total.Add(t);
 
-                position += t * new Vector3(v.x, v.y, 0);
+                position += t * v;
 
                 particle.transform.position = position;
             }
+            
+            Debug.Log($"Time Step State: [Avg {total.Average()}], [Max {total.Max()}], [Min {total.Min()}]");
         }
 
         private class InputState
