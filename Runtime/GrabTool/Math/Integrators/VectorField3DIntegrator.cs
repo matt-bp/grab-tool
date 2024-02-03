@@ -7,23 +7,27 @@ namespace GrabTool.Math.Integrators
     {
         private readonly MeshFilter _meshFilter;
         private readonly VectorField3D _vectorField;
-        private readonly float _rI;
-        private readonly float _rO;
         public Vector3 C
         {
             set => _vectorField.C = value;
         }
-
         public Vector3 DesiredTranslation
         {
             set => _vectorField.DesiredTranslation = value;
         }
 
+        public float Ro
+        {
+            get => _vectorField.Ro;
+        }
+
         public VectorField3DIntegrator(float ri, float ro)
         {
-            _vectorField = new VectorField3D();
-            _rI = ri;
-            _rO = ro;
+            _vectorField = new VectorField3D
+            {
+                Ri = ri,
+                Ro = ro
+            };
         }
 
         public Vector3[] Integrate(Vector3[] positions)
@@ -34,7 +38,13 @@ namespace GrabTool.Math.Integrators
             {
                 var v = _vectorField.GetVelocity(position);
 
-                if (v.magnitude == 0) continue;
+                if (v.magnitude == 0)
+                {
+                    results.Add(position);
+                    continue;
+                };
+
+                Debug.DrawRay(position, v);
 
                 var d = Vector3.Magnitude(_vectorField.DesiredTranslation);
                 var t = d / v.magnitude;

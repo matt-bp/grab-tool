@@ -46,10 +46,8 @@ namespace GrabTool.Math
             var gradE = u;
             var gradF = w;
             
-            var ratio = (r - Ri) / (Ro - Ri);
-
-            var gradP = (1 - B(ratio)) * gradE + DbrDx(ratio, position) * e;
-            var gradQ = (1 - B(ratio)) * gradF + DbrDx(ratio, position) * f;
+            var gradP = (1 - B(r)) * gradE + DbrDx(r, position) * e;
+            var gradQ = (1 - B(r)) * gradF + DbrDx(r, position) * f;
             
             return Vector3.Cross(gradP, gradQ);
         }
@@ -58,7 +56,9 @@ namespace GrabTool.Math
         
         private float B(float r)
         {
-            return Bernstein.Polynomial(r, 4, 3) + Bernstein.Polynomial(r, 4, 4);
+            var ratio = (r - Ri) / (Ro - Ri);
+            
+            return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
         }
 
         /// <summary>

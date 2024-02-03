@@ -3,12 +3,13 @@ using System.Linq;
 using GrabTool.Math;
 using GrabTool.Math.Integrators;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace GrabTool.Mesh
 {
+    [AddComponentMenu("Grab Tool/Dragger/Mouse Vector Field")]
     public class MouseVectorFieldDragger : MonoBehaviour
     {
-        [SerializeField] private float size = 0.2f;
         [SerializeField] private GameObject mouseIndicator;
         private MouseIndicatorState _mouseIndicatorState;
         private Camera _camera;
@@ -18,7 +19,8 @@ namespace GrabTool.Mesh
 
         [SerializeField] private MeshFilter meshToCheckCollision;
         private VectorField3DIntegrator _integrator;
-
+        private UnityEngine.Mesh meshToUpdate => meshToCheckCollision.sharedMesh;
+        // private MeshCollider meshCollider => meshToCheckCollision.gameObject.GetComponent<MeshCollider>();
 
         private void Start()
         {
@@ -56,6 +58,7 @@ namespace GrabTool.Mesh
                         // Might need to convert to world space
                         var oldPositions = meshToCheckCollision.sharedMesh.vertices;
                         var newPositions = _integrator.Integrate(oldPositions);
+                        Assert.IsTrue(oldPositions.Length == newPositions.Length);
                         MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, newPositions);
                     }
                 }
@@ -93,7 +96,7 @@ namespace GrabTool.Mesh
                 var worldSpacePosition = mouseHit.Point;
 
                 _mouseIndicatorState.Show();
-                _mouseIndicatorState.UpdatePositionAndSize(worldSpacePosition, size);
+                _mouseIndicatorState.UpdatePositionAndSize(worldSpacePosition, _integrator.Ro);
 
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -113,11 +116,6 @@ namespace GrabTool.Mesh
                 // If we're not over the cloth, we for sure wont see anything
                 _mouseIndicatorState.Hide();
             }
-        }
-
-        public void OnSizeChanged(float value)
-        {
-            size = value;
         }
 
         private class InputState

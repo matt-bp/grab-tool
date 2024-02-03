@@ -12,7 +12,10 @@ namespace GrabTool.Mesh
 
             // Need to assign the mesh every frame to get intersections happening correctly.
             // See: https://forum.unity.com/threads/how-to-update-a-mesh-collider.32467/
-            meshCollider.sharedMesh = meshToUpdate;
+            if (meshCollider != null)
+            {
+                meshCollider.sharedMesh = meshToUpdate;
+            }
         }
     }
 }
