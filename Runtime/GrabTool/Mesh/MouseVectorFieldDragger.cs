@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GrabTool.Math;
 using GrabTool.Math.Integrators;
+using GrabTool.Visualization;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -24,7 +25,11 @@ namespace GrabTool.Mesh
         [SerializeField] private float ro;
         // private UnityEngine.Mesh currentMesh => meshToCheckCollision.sharedMesh;
         // private MeshCollider meshCollider => meshToCheckCollision.gameObject.GetComponent<MeshCollider>();
-
+        [SerializeField] private Grid3D grid;
+        [SerializeField] private bool showGridVisualization;
+        
+        [SerializeField] private GameObject firstHit;
+        
         private void Start()
         {
             _camera = Camera.main;
@@ -50,6 +55,7 @@ namespace GrabTool.Mesh
                     var planeNormal = -_camera.transform.forward;
                     // - Get the point that we started at (1st mouse down)
                     var point = _inputState.InitialPosition;
+                    // var point = Vector3.zero;
 
                     Debug.DrawRay(point, planeNormal * 2);
 
@@ -57,12 +63,14 @@ namespace GrabTool.Mesh
                     {
                         _integrator.C = hit.Point;
                         _integrator.DesiredTranslation = _inputState.GetDesiredTranslation(hit.Point);
+
+                        UpdateGridVisualization(hit.Point);
                         
                         // Might need to convert to world space
-                        var oldPositions = meshToCheckCollision.sharedMesh.vertices;
-                        var newPositions = _integrator.Integrate(oldPositions);
-                        Assert.IsTrue(oldPositions.Length == newPositions.Length);
-                        MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, newPositions);
+                        // var oldPositions = meshToCheckCollision.sharedMesh.vertices;
+                        // var newPositions = _integrator.Integrate(oldPositions);
+                        // Assert.IsTrue(oldPositions.Length == newPositions.Length);
+                        // MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, newPositions);
                     }
                 }
 
@@ -85,8 +93,13 @@ namespace GrabTool.Mesh
 #endif
                 {
                     _history.Undo();
-                    
+
                     MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, _history.CurrentMesh.vertices);
+                }
+                
+                if (!showGridVisualization)
+                {
+                    grid.enabled = false;
                 }
             }
         }
@@ -97,6 +110,7 @@ namespace GrabTool.Mesh
             {
                 var hitObject = mouseHit.Transform.gameObject;
                 var worldSpacePosition = mouseHit.Point;
+                firstHit.transform.position = worldSpacePosition;
 
                 _mouseIndicatorState.Show();
                 _mouseIndicatorState.UpdatePositionAndSize(worldSpacePosition, _integrator.Ro);
@@ -118,6 +132,24 @@ namespace GrabTool.Mesh
             {
                 // If we're not over the cloth, we for sure wont see anything
                 _mouseIndicatorState.Hide();
+            }
+        }
+
+        private void UpdateGridVisualization(Vector3 newCenter)
+        {
+            if (!showGridVisualization)
+            {
+                return;
+            }
+            
+            grid.transform.position = newCenter;
+            grid.enabled = true;
+            foreach (var v in grid.Points.Select((p, i) => new { p, i }))
+            {
+                var newPoint = grid.transform.TransformPoint(v.p);
+                var value = _integrator.Integrate(newPoint);
+                grid.Velocities[v.i] = value;
+                grid.Colors[v.i] = _integrator.WasInner ? Color.green : Color.red;
             }
         }
 
