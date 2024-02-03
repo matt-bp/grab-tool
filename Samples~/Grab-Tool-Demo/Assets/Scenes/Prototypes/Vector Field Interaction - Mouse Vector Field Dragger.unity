@@ -1197,13 +1197,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24d26e0c1989448b87ecf7eae771d47e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
+  rO: 2
+  rI: 0.8
   meshToCheckCollision: {fileID: 1897364020}
-  ri: 0.8
-  ro: 2
-  grid: {fileID: 1244606841}
-  showGridVisualization: 1
-  firstHit: {fileID: 968516809}
+  mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
 --- !u!1 &2087605903
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GrabTool.Math;
@@ -11,121 +12,117 @@ namespace GrabTool.Mesh
     [AddComponentMenu("Grab Tool/Dragger/Mouse Vector Field")]
     public class MouseVectorFieldDragger : MonoBehaviour
     {
-        [SerializeField] private GameObject mouseIndicator;
-        private MouseIndicatorState _mouseIndicatorState;
+        [Tooltip("The outer loop cutoff")] [SerializeField]
+        private float rO;
+
+        [Tooltip("The inner loop cutoff")] [SerializeField]
+        private float rI;
+        
+        // [SerializeField] private Grid3D grid;
+        // [SerializeField] private bool showGridVisualization;
+        //
+        // [SerializeField] private GameObject[] thingsToUpdate;
+        // [SerializeField] private bool updatePositions;
+        //
+        // private readonly VectorField3D _vectorField3D = new();
+        [SerializeField] private MeshFilter meshToCheckCollision;
+        //
+        private readonly InputState _inputState = new();
         private Camera _camera;
         
-        private MeshHistory _history;
-        private readonly InputState _inputState = new();
+        [Header("Mouse Visualization")]
+        private MouseIndicatorState _mouseIndicatorState;
+        [SerializeField] private GameObject mouseIndicator;
 
-        [Header("Vector Field Settings")]
-        [SerializeField] private MeshFilter meshToCheckCollision;
-        private VectorField3DIntegrator _integrator;
-        [SerializeField] private float ri;
-        [SerializeField] private float ro;
-        // private UnityEngine.Mesh currentMesh => meshToCheckCollision.sharedMesh;
-        // private MeshCollider meshCollider => meshToCheckCollision.gameObject.GetComponent<MeshCollider>();
-        [SerializeField] private Grid3D grid;
-        [SerializeField] private bool showGridVisualization;
-        
-        [SerializeField] private GameObject firstHit;
-        
+        private bool doUpdate;
+
         private void Start()
         {
+            Assert.IsFalse(System.Math.Abs(rO - rI) < float.Epsilon);
+            Assert.IsTrue(rO != 0);
+            Assert.IsTrue(rI != 0);
+            
             _camera = Camera.main;
             _mouseIndicatorState =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
-            _integrator = new VectorField3DIntegrator(ri, ro);
         }
 
-        // Update is called once per frame
         private void Update()
         {
+            // _vectorField3D.Ri = rI;
+            // _vectorField3D.Ro = rO;
+            
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
+
 
             if (_inputState.CurrentlyTracking)
             {
-                // If the mouse button is still down and we're tracking
                 if (Input.GetMouseButton(0))
                 {
                     _mouseIndicatorState.Hide();
-
-                    // I need that point in a plane parallel to the camera XY plane.
-                    // - Get the camera normal, and reverse it
-                    var planeNormal = -_camera.transform.forward;
-                    // - Get the point that we started at (1st mouse down)
-                    var point = _inputState.InitialPosition;
-                    // var point = Vector3.zero;
-
-                    Debug.DrawRay(point, planeNormal * 2);
-
-                    if (Intersections.RayPlane(ray, point, planeNormal, out var hit))
-                    {
-                        _integrator.C = hit.Point;
-                        _integrator.DesiredTranslation = _inputState.GetDesiredTranslation(hit.Point);
-
-                        UpdateGridVisualization(hit.Point);
-                        
-                        // Might need to convert to world space
-                        // var oldPositions = meshToCheckCollision.sharedMesh.vertices;
-                        // var newPositions = _integrator.Integrate(oldPositions);
-                        // Assert.IsTrue(oldPositions.Length == newPositions.Length);
-                        // MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, newPositions);
-                    }
+                    
+                    // var planeNormal = -_camera.transform.forward;
+                    // // - Get the point that we started at (1st mouse down)
+                    // var point = _trackingState.InitialPosition;
+                    //
+                    // Debug.DrawRay(point, planeNormal * 2);
+                    //
+                    // if (Intersections.RayPlane(ray, point, planeNormal, out var hit))
+                    // {
+                    //     _trackingState.UpdateIndices(hit.Point);
+                    // }
                 }
-
+                
                 if (Input.GetMouseButtonUp(0))
                 {
+                    Debug.Log("End!");
                     _inputState.StopTracking();
-
-                    _history.AddMesh(meshToCheckCollision.sharedMesh);
                 }
             }
             else
             {
                 CheckForMouseOverAndStart(ray);
-
-
-#if UNITY_EDITOR
-                if (Input.GetKeyDown(KeyCode.Z))
-#else
-                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
-#endif
-                {
-                    _history.Undo();
-
-                    MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, _history.CurrentMesh.vertices);
-                }
-                
-                if (!showGridVisualization)
-                {
-                    grid.enabled = false;
-                }
             }
-        }
 
+            // if (showGridVisualization)
+            // {
+            //     grid.enabled = true;
+            //     foreach (var v in grid.Points.Select((v, i) => new { v, i }))
+            //     {
+            //         var newPoint = grid.transform.TransformPoint(v.v);
+            //         var value = _vectorField3D.GetVelocity(newPoint);
+            //         grid.Velocities[v.i] = value;
+            //         grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
+            //     }
+            // }
+            // else
+            // {
+            //     grid.enabled = false;
+            // }
+        }
+        
         private void CheckForMouseOverAndStart(Ray ray)
         {
             if (MattMath.Raycast(ray, meshToCheckCollision, out var mouseHit))
             {
-                var hitObject = mouseHit.Transform.gameObject;
+                // var hitObject = mouseHit.Transform.gameObject;
                 var worldSpacePosition = mouseHit.Point;
-                firstHit.transform.position = worldSpacePosition;
 
                 _mouseIndicatorState.Show();
-                _mouseIndicatorState.UpdatePositionAndSize(worldSpacePosition, _integrator.Ro);
+                _mouseIndicatorState.UpdatePosition(worldSpacePosition, rO);
 
                 if (Input.GetMouseButtonDown(0))
                 {
                     _inputState.StartTracking(worldSpacePosition);
                     
-                    //_trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
+                    Debug.Log("Start!");
+                    // _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
 
-                    if (_history is null)
-                    {
-                        Debug.Log("Starting history");
-                        _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
-                    }
+                    // if (_history is null)
+                    // {
+                    //     Debug.Log("Starting history");
+                    //     _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                    // }
                 }
             }
             else
@@ -135,24 +132,41 @@ namespace GrabTool.Mesh
             }
         }
 
-        private void UpdateGridVisualization(Vector3 newCenter)
-        {
-            if (!showGridVisualization)
-            {
-                return;
-            }
-            
-            grid.transform.position = newCenter;
-            grid.enabled = true;
-            foreach (var v in grid.Points.Select((p, i) => new { p, i }))
-            {
-                var newPoint = grid.transform.TransformPoint(v.p);
-                var value = _integrator.Integrate(newPoint);
-                grid.Velocities[v.i] = value;
-                grid.Colors[v.i] = _integrator.WasInner ? Color.green : Color.red;
-            }
-        }
+        // public void HandleMouseMove((Vector3 DesiredTranslation, Vector3 Center) input)
+        // {
+        //     _vectorField3D.C = input.Center;
+        //     _vectorField3D.DesiredTranslation = input.DesiredTranslation;
+        //     grid.transform.position = input.Center;
+        //     doUpdate = true;
+        // }
 
+        // private void FixedUpdate()
+        // {
+        //     if (!doUpdate) return;
+        //
+        //     foreach (var particle in thingsToUpdate)
+        //     {
+        //         var position = particle.transform.position;
+        //         var v = _vectorField3D.GetVelocity(position);
+        //
+        //         if (v.magnitude == 0) continue;
+        //
+        //         var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
+        //         var t = d / v.magnitude;
+        //
+        //         // Debug.Log($"Time update is {t}");
+        //
+        //         if (updatePositions)
+        //         {
+        //             position += t * new Vector3(v.x, v.y, 0);
+        //
+        //             particle.transform.position = position;
+        //         }
+        //     }
+        //
+        //     doUpdate = false;
+        // }
+        
         private class InputState
         {
             public bool CurrentlyTracking { get; private set; }
@@ -183,37 +197,6 @@ namespace GrabTool.Mesh
 
                 var direction = currentPosition - _previousPosition.Value;
                 return direction;
-            }
-        }
-
-        private class MouseIndicatorState
-        {
-            private readonly GameObject _instance;
-            private readonly LineRenderer _lineRenderer;
-
-            public MouseIndicatorState(GameObject instance)
-            {
-                _instance = instance;
-                _lineRenderer = instance.GetComponent<LineRenderer>();
-            }
-
-            public void UpdatePositionAndSize(Vector3 position, float size)
-            {
-                _instance.transform.position = position;
-                _instance.transform.localScale = new Vector3(size, size, size);
-            }
-
-            public void Hide()
-            {
-                if (_lineRenderer.enabled)
-                {
-                    _lineRenderer.enabled = false;
-                }
-            }
-
-            public void Show()
-            {
-                _lineRenderer.enabled = true;
             }
         }
     }
