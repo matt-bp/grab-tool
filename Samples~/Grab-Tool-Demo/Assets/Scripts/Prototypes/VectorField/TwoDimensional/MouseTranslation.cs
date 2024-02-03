@@ -31,7 +31,7 @@ namespace Prototypes.VectorField.TwoDimensional
         {
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
-            var planeNormal = Vector3.back;
+            var planeNormal = -_camera.transform.forward;
 
             if (Intersections.RayPlane(ray, point, planeNormal, out var hit))
             {
