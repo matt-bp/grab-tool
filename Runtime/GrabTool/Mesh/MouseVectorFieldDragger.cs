@@ -39,7 +39,6 @@ namespace GrabTool.Mesh
         [Header("Mouse Input")] private MouseIndicatorState _mouseIndicatorState;
         [SerializeField] private GameObject mouseIndicatorPrefab;
         [SerializeField] private GameObject selectionMouseIndicator;
-        private Vector3? _previousMousePosition;
 
         private void Start()
         {
@@ -75,7 +74,6 @@ namespace GrabTool.Mesh
         {
             if (MattMath.Raycast(ray, meshToCheckCollision, out var mouseHit))
             {
-                // var hitObject = mouseHit.Transform.gameObject;
                 var worldSpacePosition = mouseHit.Point;
 
                 _mouseIndicatorState.Show();
@@ -86,7 +84,6 @@ namespace GrabTool.Mesh
                     _inputState.StartTracking(worldSpacePosition);
 
                     Debug.Log("Start!");
-                    // _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
 
                     // if (_history is null)
                     // {
@@ -118,7 +115,6 @@ namespace GrabTool.Mesh
             {
                 Debug.Log("End!");
                 _inputState.StopTracking();
-                _previousMousePosition = null;
             }
         }
 
@@ -141,14 +137,13 @@ namespace GrabTool.Mesh
 
         private void ProcessMouseMovement(Vector3 point)
         {
-            if (!_previousMousePosition.HasValue)
+            if (!_inputState.TryGetDesiredTranslation(point, out var direction))
             {
-                _previousMousePosition = point;
                 return;
             }
 
             _vectorField3D.C = point;
-            _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
+            _vectorField3D.DesiredTranslation = direction;
             selectionMouseIndicator.transform.position = point;
             grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
 
@@ -157,8 +152,6 @@ namespace GrabTool.Mesh
             // UpdateThingsToUpdate();
 
             UpdateMesh();
-
-            _previousMousePosition = point;
         }
 
         private void UpdateGridVisualization()
@@ -259,7 +252,6 @@ namespace GrabTool.Mesh
             public bool CurrentlyTracking { get; private set; }
             public Vector3 InitialPosition { get; private set; }
 
-            // private readonly Queue<Vector3> _positionHistory = new();
             private Vector3? _previousPosition;
 
             public void StartTracking(Vector3 initialPosition)
@@ -274,16 +266,18 @@ namespace GrabTool.Mesh
                 CurrentlyTracking = false;
             }
 
-            public Vector3 GetDesiredTranslation(Vector3 currentPosition)
+            public bool TryGetDesiredTranslation(Vector3 currentPosition, out Vector3 direction)
             {
-                if (_previousPosition == null)
+                direction = Vector3.zero;
+                if (!_previousPosition.HasValue)
                 {
                     _previousPosition = currentPosition;
-                    return currentPosition;
+                    return false;
                 }
 
-                var direction = currentPosition - _previousPosition.Value;
-                return direction;
+                direction = currentPosition - _previousPosition.Value;
+                _previousPosition = currentPosition;
+                return true;
             }
         }
     }
