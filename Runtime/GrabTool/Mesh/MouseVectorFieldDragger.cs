@@ -146,10 +146,12 @@ namespace GrabTool.Mesh
             _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
             selectionMouseIndicator.transform.position = point;
             grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
-            
+
             UpdateGridVisualization();
 
-            UpdateThingsToUpdate();
+            // UpdateThingsToUpdate();
+
+            UpdateMesh();
 
             _previousMousePosition = point;
         }
@@ -176,7 +178,7 @@ namespace GrabTool.Mesh
         private void UpdateThingsToUpdate()
         {
             var total = new List<float>();
-            
+
             foreach (var particle in thingsToUpdate)
             {
                 var position = particle.transform.position;
@@ -201,8 +203,43 @@ namespace GrabTool.Mesh
 
                 particle.transform.position = position;
             }
-            
+
             Debug.Log($"Time Step State: [Avg {total.Average()}], [Max {total.Max()}], [Min {total.Min()}]");
+        }
+
+        private void UpdateMesh()
+        {
+            Debug.Log("Updating mesh!");
+            var mesh = meshToCheckCollision.sharedMesh;
+            var meshTransform = meshToCheckCollision.gameObject.transform;
+
+            var newWorldSpacePositions = new List<Vector3>();
+
+            foreach (var position in mesh.vertices)
+            {
+                var worldSpacePosition = meshTransform.TransformPoint(position);
+
+                var v = _vectorField3D.GetVelocity(worldSpacePosition);
+
+                if (v.magnitude == 0)
+                {
+                    newWorldSpacePositions.Add(worldSpacePosition);
+                    continue;
+                }
+
+                var distanceToGo = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
+                var dt = Mathf.Min(2.0f, distanceToGo / v.magnitude);
+
+                worldSpacePosition += dt * v;
+
+                newWorldSpacePositions.Add(worldSpacePosition);
+            }
+
+            var newPositions = newWorldSpacePositions.Select(meshTransform.InverseTransformPoint).ToArray();
+
+            Assert.IsTrue(mesh.vertices.Length == newPositions.Length);
+            
+            MeshUpdater.UpdateMeshes(mesh, null, newPositions);
         }
 
         private class InputState
