@@ -33,7 +33,7 @@ namespace GrabTool.Mesh
 
             float GetWorldSpaceDistance(Vector3 p) =>
                 Vector3.Distance(hitObject.transform.TransformPoint(p), initialHitPosition);
-
+            
             _indicesAndOriginalPositions = _meshToUpdate.vertices
                 .Select((v, i) => new { v, i, closeRatio = GetWorldSpaceDistance(v) / radius })
                 .Where(x => x.closeRatio is >= 0 and <= 1)
