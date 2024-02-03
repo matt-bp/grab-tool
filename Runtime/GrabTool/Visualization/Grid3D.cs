@@ -12,6 +12,7 @@ namespace GrabTool.Visualization
 
         public Vector3[] Velocities { get; private set; }
         public Color[] Colors { get; private set; }
+        public Color noDataColor = Color.gray;
 
         public int densityPerMeter = 10;
 
@@ -85,14 +86,14 @@ namespace GrabTool.Visualization
                 var velocity = Velocities[p.i];
                 if (velocity == Vector3.zero)
                 {
-                    // Handles.color = Color.gray;
-                    // Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0, EventType.Repaint);    
+                    Handles.color = noDataColor;
+                    Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
                     continue;
                 }
 
                 if (float.IsNaN(velocity.x) || float.IsNaN(velocity.y) || float.IsNaN(velocity.z))
                 {
-                    // Debug.Log($"nans! at {p.i}, {p.v}");
+                    Debug.Log($"nans! at {p.i}, {p.v}");
                     continue;
                 }
 

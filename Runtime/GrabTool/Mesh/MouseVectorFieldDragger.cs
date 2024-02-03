@@ -18,26 +18,26 @@ namespace GrabTool.Mesh
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
 
-        // [SerializeField] private Grid3D grid;
-        // [SerializeField] private bool showGridVisualization;
+        [Header("Vector grid visualization")]
+        [SerializeField] private Grid3D grid;
+        [SerializeField] private bool showGridVisualization;
         //
         // [SerializeField] private GameObject[] thingsToUpdate;
         // [SerializeField] private bool updatePositions;
         //
-        // private readonly VectorField3D _vectorField3D = new();
+        private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
 
         //
         private readonly InputState _inputState = new();
         private Camera _camera;
 
-        [Header("Mouse Visualization")] private MouseIndicatorState _mouseIndicatorState;
+        [Header("Mouse Input")] private MouseIndicatorState _mouseIndicatorState;
         [SerializeField] private GameObject mouseIndicatorPrefab;
-
-
         [SerializeField] private GameObject selectionMouseIndicator;
+        private Vector3? _previousMousePosition;
 
-        private bool doUpdate;
+        private bool doFixedUpdate;
 
         private void Start()
         {
@@ -52,8 +52,9 @@ namespace GrabTool.Mesh
 
         private void Update()
         {
-            // _vectorField3D.Ri = rI;
-            // _vectorField3D.Ro = rO;
+            // What is a better way to do this?
+            _vectorField3D.Ri = rI;
+            _vectorField3D.Ro = rO;
 
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
@@ -66,22 +67,6 @@ namespace GrabTool.Mesh
             {
                 CheckForMouseOverAndStart(ray);
             }
-
-            // if (showGridVisualization)
-            // {
-            //     grid.enabled = true;
-            //     foreach (var v in grid.Points.Select((v, i) => new { v, i }))
-            //     {
-            //         var newPoint = grid.transform.TransformPoint(v.v);
-            //         var value = _vectorField3D.GetVelocity(newPoint);
-            //         grid.Velocities[v.i] = value;
-            //         grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
-            //     }
-            // }
-            // else
-            // {
-            //     grid.enabled = false;
-            // }
         }
 
         private void CheckForMouseOverAndStart(Ray ray)
@@ -123,7 +108,7 @@ namespace GrabTool.Mesh
 
                 if (TryGetPointOnParallelToCameraPlane(ray, out var point))
                 {
-                    selectionMouseIndicator.transform.position = point;
+                    ProcessMouseMovement(point);
                 }
             }
 
@@ -151,6 +136,46 @@ namespace GrabTool.Mesh
             return false;
         }
 
+        private void ProcessMouseMovement(Vector3 point)
+        {
+
+            _vectorField3D.C = point;
+            // _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
+            _vectorField3D.DesiredTranslation = Vector3.up;
+            selectionMouseIndicator.transform.position = point;
+            // grid.transform.position = point; // positions shouldn't actually move, I want to see the velocities
+            doFixedUpdate = true;
+            
+            _previousMousePosition ??= point;
+        }
+
+        private void FixedUpdate()
+        {
+            if (!doFixedUpdate) return;
+
+            UpdateGridVisualization();
+
+            doFixedUpdate = false;
+        }
+
+        private void UpdateGridVisualization()
+        {
+            if (showGridVisualization)
+            {
+                grid.enabled = true;
+                foreach (var v in grid.Points.Select((v, i) => new { v, i }))
+                {
+                    var newPoint = grid.transform.TransformPoint(v.v);
+                    var value = _vectorField3D.GetVelocity(newPoint);
+                    grid.Velocities[v.i] = value;
+                    grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
+                }
+            }
+            else
+            {
+                grid.enabled = false;
+            }
+        }
 
         // public void HandleMouseMove((Vector3 DesiredTranslation, Vector3 Center) input)
         // {
