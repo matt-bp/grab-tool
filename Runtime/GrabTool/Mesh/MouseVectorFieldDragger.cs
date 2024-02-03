@@ -17,7 +17,7 @@ namespace GrabTool.Mesh
 
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
-        
+
         // [SerializeField] private Grid3D grid;
         // [SerializeField] private bool showGridVisualization;
         //
@@ -26,13 +26,16 @@ namespace GrabTool.Mesh
         //
         // private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
+
         //
         private readonly InputState _inputState = new();
         private Camera _camera;
-        
-        [Header("Mouse Visualization")]
-        private MouseIndicatorState _mouseIndicatorState;
-        [SerializeField] private GameObject mouseIndicator;
+
+        [Header("Mouse Visualization")] private MouseIndicatorState _mouseIndicatorState;
+        [SerializeField] private GameObject mouseIndicatorPrefab;
+
+
+        [SerializeField] private GameObject selectionMouseIndicator;
 
         private bool doUpdate;
 
@@ -41,43 +44,23 @@ namespace GrabTool.Mesh
             Assert.IsFalse(System.Math.Abs(rO - rI) < float.Epsilon);
             Assert.IsTrue(rO != 0);
             Assert.IsTrue(rI != 0);
-            
+
             _camera = Camera.main;
             _mouseIndicatorState =
-                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
+                new MouseIndicatorState(Instantiate(mouseIndicatorPrefab, Vector3.zero, Quaternion.identity));
         }
 
         private void Update()
         {
             // _vectorField3D.Ri = rI;
             // _vectorField3D.Ro = rO;
-            
+
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
 
             if (_inputState.CurrentlyTracking)
             {
-                if (Input.GetMouseButton(0))
-                {
-                    _mouseIndicatorState.Hide();
-                    
-                    // var planeNormal = -_camera.transform.forward;
-                    // // - Get the point that we started at (1st mouse down)
-                    // var point = _trackingState.InitialPosition;
-                    //
-                    // Debug.DrawRay(point, planeNormal * 2);
-                    //
-                    // if (Intersections.RayPlane(ray, point, planeNormal, out var hit))
-                    // {
-                    //     _trackingState.UpdateIndices(hit.Point);
-                    // }
-                }
-                
-                if (Input.GetMouseButtonUp(0))
-                {
-                    Debug.Log("End!");
-                    _inputState.StopTracking();
-                }
+                StillInTracking(ray);
             }
             else
             {
@@ -100,7 +83,7 @@ namespace GrabTool.Mesh
             //     grid.enabled = false;
             // }
         }
-        
+
         private void CheckForMouseOverAndStart(Ray ray)
         {
             if (MattMath.Raycast(ray, meshToCheckCollision, out var mouseHit))
@@ -114,7 +97,7 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButtonDown(0))
                 {
                     _inputState.StartTracking(worldSpacePosition);
-                    
+
                     Debug.Log("Start!");
                     // _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
 
@@ -131,6 +114,43 @@ namespace GrabTool.Mesh
                 _mouseIndicatorState.Hide();
             }
         }
+
+        private void StillInTracking(Ray ray)
+        {
+            if (Input.GetMouseButton(0)) // If we are still pressing the mouse button down
+            {
+                _mouseIndicatorState.Hide();
+
+                if (TryGetPointOnParallelToCameraPlane(ray, out var point))
+                {
+                    selectionMouseIndicator.transform.position = point;
+                }
+            }
+
+            if (Input.GetMouseButtonUp(0)) // If we stopped pressing the mouse button
+            {
+                Debug.Log("End!");
+                _inputState.StopTracking();
+            }
+        }
+
+        private bool TryGetPointOnParallelToCameraPlane(Ray ray, out Vector3 point)
+        {
+            var planeNormal = -_camera.transform.forward;
+            var planeOrigin = _inputState.InitialPosition;
+
+            Debug.DrawRay(planeOrigin, planeNormal * 2);
+
+            if (Intersections.RayPlane(ray, planeOrigin, planeNormal, out var hit))
+            {
+                point = hit.Point;
+                return true;
+            }
+
+            point = Vector3.zero;
+            return false;
+        }
+
 
         // public void HandleMouseMove((Vector3 DesiredTranslation, Vector3 Center) input)
         // {
@@ -166,7 +186,7 @@ namespace GrabTool.Mesh
         //
         //     doUpdate = false;
         // }
-        
+
         private class InputState
         {
             public bool CurrentlyTracking { get; private set; }
