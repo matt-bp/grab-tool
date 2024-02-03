@@ -26,8 +26,13 @@ namespace GrabTool.Mesh
 
         private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
-        [SerializeField] private GameObject[] thingsToUpdate;
 
+        /// <summary>
+        /// <para>I made this because with using the velocity update when Dot(v, desiredDir) is less than zero, it clumps meshes together.</para>
+        /// <para>I could've implemented this wrong, but from what I'm seeing, ignoring the negative dot product velocities helps usability.</para>
+        /// </summary>
+        [Tooltip("When true, this makes it so the mesh is integrated with the whole vector field.")]
+        [SerializeField] private bool useNegativeHemisphere;
         private readonly InputState _inputState = new();
         private Camera _camera;
 
@@ -175,41 +180,42 @@ namespace GrabTool.Mesh
             }
         }
 
-        private void UpdateThingsToUpdate()
-        {
-            var total = new List<float>();
-
-            foreach (var particle in thingsToUpdate)
-            {
-                var position = particle.transform.position;
-                var v = _vectorField3D.GetVelocity(position);
-
-                if (v.magnitude == 0) continue;
-
-                // If we know the desired translation, then we know a previous and current position,
-                // which means we can get the time it took to move from previous to current, and use
-                // that as our time step?
-                // This make the speed of the mouse important, do I want that?
-                // This is the same as getting the length between the current and previous point
-                var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
-                // Alternatives, do adaptive time stepping, for a set amount of time?
-                // var t = d / v.magnitude;
-                var t = Mathf.Min(2, d / v.magnitude);
-                // var t = Time.deltaTime; // This didn't work, the resulting velocity was too slow
-                // Debug.Log($"Time update is {t}");
-                total.Add(t);
-
-                position += t * v;
-
-                particle.transform.position = position;
-            }
-
-            Debug.Log($"Time Step State: [Avg {total.Average()}], [Max {total.Max()}], [Min {total.Min()}]");
-        }
+        // Used to test with floating points.
+        // [SerializeField] private GameObject[] thingsToUpdate;
+        // private void UpdateThingsToUpdate()
+        // {
+        //     var total = new List<float>();
+        //
+        //     foreach (var particle in thingsToUpdate)
+        //     {
+        //         var position = particle.transform.position;
+        //         var v = _vectorField3D.GetVelocity(position);
+        //
+        //         if (v.magnitude == 0) continue;
+        //
+        //         // If we know the desired translation, then we know a previous and current position,
+        //         // which means we can get the time it took to move from previous to current, and use
+        //         // that as our time step?
+        //         // This make the speed of the mouse important, do I want that?
+        //         // This is the same as getting the length between the current and previous point
+        //         var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
+        //         // Alternatives, do adaptive time stepping, for a set amount of time?
+        //         // var t = d / v.magnitude;
+        //         var t = Mathf.Min(2, d / v.magnitude);
+        //         // var t = Time.deltaTime; // This didn't work, the resulting velocity was too slow
+        //         // Debug.Log($"Time update is {t}");
+        //         total.Add(t);
+        //
+        //         position += t * v;
+        //
+        //         particle.transform.position = position;
+        //     }
+        //
+        //     Debug.Log($"Time Step State: [Avg {total.Average()}], [Max {total.Max()}], [Min {total.Min()}]");
+        // }
 
         private void UpdateMesh()
         {
-            Debug.Log("Updating mesh!");
             var mesh = meshToCheckCollision.sharedMesh;
             var meshTransform = meshToCheckCollision.gameObject.transform;
 
@@ -222,6 +228,12 @@ namespace GrabTool.Mesh
                 var v = _vectorField3D.GetVelocity(worldSpacePosition);
 
                 if (v.magnitude == 0)
+                {
+                    newWorldSpacePositions.Add(worldSpacePosition);
+                    continue;
+                }
+
+                if (!useNegativeHemisphere && Vector3.Dot(v, _vectorField3D.DesiredTranslation) < 0)
                 {
                     newWorldSpacePositions.Add(worldSpacePosition);
                     continue;
