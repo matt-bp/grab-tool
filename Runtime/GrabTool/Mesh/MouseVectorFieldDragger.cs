@@ -226,6 +226,15 @@ namespace GrabTool.Mesh
                     continue;
                 }
 
+                // Options:
+                // - Let everything go through
+                // - Let only points in front of you get updated
+                //   - var directionToCurrentPoint = worldSpacePosition - _vectorField3D.C;
+                // - Only velocities that aren't going away from the desired translation get updated
+                //   - Use Dot(v, ...)
+                // - Apply a scaling on velocities for points the other direction of where we want to translate.
+                //   This would make them smaller. Or linearly interpolate between a min and max, so velocity is 0 
+                //   when the point is "behind" us.
                 if (!useNegativeHemisphere && Vector3.Dot(v, _vectorField3D.DesiredTranslation) < 0)
                 {
                     newWorldSpacePositions.Add(worldSpacePosition);
