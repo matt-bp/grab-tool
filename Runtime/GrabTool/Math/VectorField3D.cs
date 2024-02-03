@@ -48,6 +48,11 @@ namespace GrabTool.Math
             
             var gradP = (1 - B(r)) * gradE + DbrDx(r, position) * e;
             var gradQ = (1 - B(r)) * gradF + DbrDx(r, position) * f;
+
+            if (gradP.AnyNaN() || gradQ.AnyNaN())
+            {
+                return Vector3.zero;
+            }
             
             return Vector3.Cross(gradP, gradQ);
         }

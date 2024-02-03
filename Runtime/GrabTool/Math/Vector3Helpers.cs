@@ -44,5 +44,10 @@ namespace GrabTool.Math
 
             throw new ArgumentException($"Cant find an orthogonal vector to {vec}");
         }
+
+        public static bool AnyNaN(this Vector3 vector)
+        {
+            return float.IsNaN(vector.x) || float.IsNaN(vector.y) || float.IsNaN(vector.z);
+        }
     }
 }

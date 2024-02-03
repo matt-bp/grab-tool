@@ -18,18 +18,16 @@ namespace GrabTool.Mesh
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
 
-        [Header("Vector grid visualization")]
-        [SerializeField] private Grid3D grid;
+        [Header("Vector grid visualization")] [SerializeField]
+        private Grid3D grid;
+
         [SerializeField] private bool showGridVisualization;
         [SerializeField] private bool updateGridWithMouse;
-        //
-        // [SerializeField] private GameObject[] thingsToUpdate;
-        // [SerializeField] private bool updatePositions;
-        //
+
         private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
+        [SerializeField] private GameObject[] thingsToUpdate;
 
-        //
         private readonly InputState _inputState = new();
         private Camera _camera;
 
@@ -96,7 +94,7 @@ namespace GrabTool.Mesh
             }
             else
             {
-                // If we're not over the cloth, we for sure wont see anything
+                // If we're not over the cloth, we for sure won't see anything
                 _mouseIndicatorState.Hide();
             }
         }
@@ -144,13 +142,13 @@ namespace GrabTool.Mesh
                 _previousMousePosition = point;
                 return;
             }
-            
+
             _vectorField3D.C = point;
             _vectorField3D.DesiredTranslation = point - _previousMousePosition.Value;
             selectionMouseIndicator.transform.position = point;
             grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
             doFixedUpdate = true;
-            
+
             _previousMousePosition = point;
         }
 
@@ -159,6 +157,8 @@ namespace GrabTool.Mesh
             if (!doFixedUpdate) return;
 
             UpdateGridVisualization();
+
+            UpdateThingsToUpdate();
 
             doFixedUpdate = false;
         }
@@ -182,40 +182,25 @@ namespace GrabTool.Mesh
             }
         }
 
-        // public void HandleMouseMove((Vector3 DesiredTranslation, Vector3 Center) input)
-        // {
-        //     _vectorField3D.C = input.Center;
-        //     _vectorField3D.DesiredTranslation = input.DesiredTranslation;
-        //     grid.transform.position = input.Center;
-        //     doUpdate = true;
-        // }
+        private void UpdateThingsToUpdate()
+        {
+            foreach (var particle in thingsToUpdate)
+            {
+                var position = particle.transform.position;
+                var v = _vectorField3D.GetVelocity(position);
 
-        // private void FixedUpdate()
-        // {
-        //     if (!doUpdate) return;
-        //
-        //     foreach (var particle in thingsToUpdate)
-        //     {
-        //         var position = particle.transform.position;
-        //         var v = _vectorField3D.GetVelocity(position);
-        //
-        //         if (v.magnitude == 0) continue;
-        //
-        //         var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
-        //         var t = d / v.magnitude;
-        //
-        //         // Debug.Log($"Time update is {t}");
-        //
-        //         if (updatePositions)
-        //         {
-        //             position += t * new Vector3(v.x, v.y, 0);
-        //
-        //             particle.transform.position = position;
-        //         }
-        //     }
-        //
-        //     doUpdate = false;
-        // }
+                if (v.magnitude == 0) continue;
+
+                var d = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
+                var t = d / v.magnitude;
+
+                // Debug.Log($"Time update is {t}");
+
+                position += t * new Vector3(v.x, v.y, 0);
+
+                particle.transform.position = position;
+            }
+        }
 
         private class InputState
         {
