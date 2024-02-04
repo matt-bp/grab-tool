@@ -67,6 +67,7 @@ namespace GrabTool.Math
         
         private float B(float r)
         {
+            // Not sure if adjusted is correct here
             var ratio = (r - AdjustedRi) / (AdjustedRo - AdjustedRi);
             
             return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);

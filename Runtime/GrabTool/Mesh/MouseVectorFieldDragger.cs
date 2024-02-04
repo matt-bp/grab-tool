@@ -20,9 +20,11 @@ namespace GrabTool.Mesh
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
 
-        [Tooltip("Value to scale r by. Ri and Ro are based on the underlying function, where this values scales that function.")]
-        [SerializeField] private float rMultiplier = 1.0f;
-        
+        [Tooltip(
+            "Value to scale r by. Ri and Ro are based on the underlying function, where this values scales that function.")]
+        [SerializeField]
+        private float rMultiplier = 1.0f;
+
         private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
         private MeshHistory _history;
@@ -155,7 +157,7 @@ namespace GrabTool.Mesh
 
             _vectorField3D.C = point;
             _vectorField3D.DesiredTranslation = direction;
-            
+
             // grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
             // UpdateGridVisualization();
 
@@ -254,30 +256,20 @@ namespace GrabTool.Mesh
                 //     newWorldSpacePositions.Add(worldSpacePosition);
                 //     continue;
                 // }
-                // if (!use)
 
                 var modifier = 1.0f;
-                if (taperVelocityOnNegativeHemisphere)
+                if (taperVelocityOnNegativeHemisphere && !_vectorField3D.wasInner)
                 {
-                    if (!_vectorField3D.wasInner)
-                    {
-                        var directionToCurrentPoint = worldSpacePosition - _vectorField3D.C;
-                        var dot = Vector3.Dot(directionToCurrentPoint, _vectorField3D.DesiredTranslation);
+                    var directionToCurrentPoint = worldSpacePosition - _vectorField3D.C;
+                    var dot = Vector3.Dot(directionToCurrentPoint, _vectorField3D.DesiredTranslation);
 
-                        if (dot < 0.0f)
-                        {
-                            var modifiedDot = Mathf.Min(1.0f, Mathf.Abs(dot));
-                            modifier = (1.0f - modifiedDot) / 8;
-                        }
-                    }
-                    else
+                    if (dot < 0.0f)
                     {
-                        var directionToCurrentPoint = Vector3.Distance(worldSpacePosition, _vectorField3D.C);
-                        
-
+                        var modifiedDot = Mathf.Min(1.0f, Mathf.Abs(dot));
+                        modifier = (1.0f - modifiedDot) / 8;
                     }
                 }
-                
+
                 var distanceToGo = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
                 var dt = Mathf.Min(2.0f, distanceToGo / v.magnitude);
 
