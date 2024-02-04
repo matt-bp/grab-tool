@@ -15,6 +15,9 @@ namespace Prototypes.VectorField.ThreeDee
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
         
+        [Tooltip("Value to scale r by. Ri and Ro are based on the underlying function, where this values scales that function.")]
+        [SerializeField] private float rMultiplier = 1.0f;
+        
         [SerializeField] private Grid3D grid;
         [SerializeField] private bool showGridVisualization;
 
@@ -35,6 +38,7 @@ namespace Prototypes.VectorField.ThreeDee
         {
             _vectorField3D.Ri = rI;
             _vectorField3D.Ro = rO;
+            _vectorField3D.RMultiplier = rMultiplier;
 
             Assert.IsTrue(rI < rO);
 

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1381,6 +1381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rO: 4
   rI: 0.8
+  rMultiplier: 1
   grid: {fileID: 1984307995}
   showGridVisualization: 1
   updatePositions: 0
@@ -1416,7 +1417,7 @@ MonoBehaviour:
   xSize: 8
   ySize: 8
   zSize: 8
-  densityPerMeter: 4
+  densityPerMeter: 8
   inXYPlane: 1
 --- !u!4 &1984307996
 Transform:

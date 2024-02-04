@@ -15,30 +15,30 @@ namespace GrabTool.Mesh
         [Tooltip("The outer loop cutoff")] [SerializeField]
         private float rO;
 
+        public float AdjustedRo => rO / rMultiplier;
+
         [Tooltip("The inner loop cutoff")] [SerializeField]
         private float rI;
 
-        [Header("Vector grid visualization")] [SerializeField]
-        private Grid3D grid;
-
-        [SerializeField] private bool showGridVisualization;
-        [SerializeField] private bool updateGridWithMouse;
-
+        [Tooltip("Value to scale r by. Ri and Ro are based on the underlying function, where this values scales that function.")]
+        [SerializeField] private float rMultiplier = 1.0f;
+        
         private readonly VectorField3D _vectorField3D = new();
         [SerializeField] private MeshFilter meshToCheckCollision;
+        private MeshHistory _history;
 
         /// <summary>
+        /// <para>This makes velocity updates on points "behind" (-dot product) from our desired translation weaker.</para>
         /// <para>I made this because with using the velocity update when Dot(v, desiredDir) is less than zero, it clumps meshes together.</para>
-        /// <para>I could've implemented this wrong, but from what I'm seeing, ignoring the negative dot product velocities helps usability.</para>
+        /// <para>I could've implemented this wrong, but from what I'm seeing in the planar mesh, the divergence free comes at a cost.</para>
         /// </summary>
-        [Tooltip("When true, this makes it so the mesh is integrated with the whole vector field.")]
-        [SerializeField] private bool useNegativeHemisphere;
+        [SerializeField] private bool taperVelocityOnNegativeHemisphere;
+
         private readonly InputState _inputState = new();
         private Camera _camera;
 
         [Header("Mouse Input")] private MouseIndicatorState _mouseIndicatorState;
         [SerializeField] private GameObject mouseIndicatorPrefab;
-        [SerializeField] private GameObject selectionMouseIndicator;
 
         private void Start()
         {
@@ -56,6 +56,7 @@ namespace GrabTool.Mesh
             // What is a better way to do this?
             _vectorField3D.Ri = rI;
             _vectorField3D.Ro = rO;
+            _vectorField3D.RMultiplier = rMultiplier;
 
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
@@ -67,6 +68,8 @@ namespace GrabTool.Mesh
             else
             {
                 CheckForMouseOverAndStart(ray);
+
+                CheckForUndo();
             }
         }
 
@@ -77,23 +80,33 @@ namespace GrabTool.Mesh
                 var worldSpacePosition = mouseHit.Point;
 
                 _mouseIndicatorState.Show();
-                _mouseIndicatorState.UpdatePosition(worldSpacePosition, rO);
+                _mouseIndicatorState.UpdatePosition(worldSpacePosition, AdjustedRo);
 
                 // We press the mouse button to start updating the mesh
                 if (!Input.GetMouseButtonDown(0)) return;
-                
+
                 _inputState.StartTracking(worldSpacePosition);
-                
-                // if (_history is null)
-                // {
-                //     Debug.Log("Starting history");
-                //     _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
-                // }
+
+                _history ??= new MeshHistory(meshToCheckCollision.sharedMesh);
             }
             else
             {
                 // If we're not over the cloth, we for sure won't see anything
                 _mouseIndicatorState.Hide();
+            }
+        }
+
+        private void CheckForUndo()
+        {
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Z))
+#else
+                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
+#endif
+            {
+                _history.Undo();
+
+                MeshUpdater.UpdateMeshes(meshToCheckCollision.sharedMesh, null, _history.CurrentMesh.vertices);
             }
         }
 
@@ -111,8 +124,9 @@ namespace GrabTool.Mesh
 
             // If we don't let go of the mouse button, we are still tracking!
             if (!Input.GetMouseButtonUp(0)) return;
-            
+
             _inputState.StopTracking();
+            _history.AddMesh(meshToCheckCollision.sharedMesh);
         }
 
         private bool TryGetPointOnParallelToCameraPlane(Ray ray, out Vector3 point)
@@ -141,34 +155,37 @@ namespace GrabTool.Mesh
 
             _vectorField3D.C = point;
             _vectorField3D.DesiredTranslation = direction;
-            selectionMouseIndicator.transform.position = point;
-            grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
-
-            UpdateGridVisualization();
+            
+            // grid.transform.position = updateGridWithMouse ? point : Vector3.zero;
+            // UpdateGridVisualization();
 
             // UpdateThingsToUpdate();
 
             UpdateMesh();
         }
 
-        private void UpdateGridVisualization()
-        {
-            if (showGridVisualization)
-            {
-                grid.enabled = true;
-                foreach (var v in grid.Points.Select((v, i) => new { v, i }))
-                {
-                    var newPoint = grid.transform.TransformPoint(v.v);
-                    var value = _vectorField3D.GetVelocity(newPoint);
-                    grid.Velocities[v.i] = value;
-                    grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
-                }
-            }
-            else
-            {
-                grid.enabled = false;
-            }
-        }
+        // [Header("Vector grid visualization")] [SerializeField]
+        // private Grid3D grid;
+        // [SerializeField] private bool showGridVisualization;
+        // [SerializeField] private bool updateGridWithMouse;
+        // private void UpdateGridVisualization()
+        // {
+        //     if (showGridVisualization)
+        //     {
+        //         grid.enabled = true;
+        //         foreach (var v in grid.Points.Select((v, i) => new { v, i }))
+        //         {
+        //             var newPoint = grid.transform.TransformPoint(v.v);
+        //             var value = _vectorField3D.GetVelocity(newPoint);
+        //             grid.Velocities[v.i] = value;
+        //             grid.Colors[v.i] = _vectorField3D.wasInner ? Color.green : Color.red;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         grid.enabled = false;
+        //     }
+        // }
 
         // Used to test with floating points.
         // [SerializeField] private GameObject[] thingsToUpdate;
@@ -232,16 +249,39 @@ namespace GrabTool.Mesh
                 // - Apply a scaling on velocities for points the other direction of where we want to translate.
                 //   This would make them smaller. Or linearly interpolate between a min and max, so velocity is 0 
                 //   when the point is "behind" us.
-                if (!useNegativeHemisphere && Vector3.Dot(v, _vectorField3D.DesiredTranslation) < 0)
-                {
-                    newWorldSpacePositions.Add(worldSpacePosition);
-                    continue;
-                }
+                // if (!useNegativeHemisphere && Vector3.Dot(v, _vectorField3D.DesiredTranslation) < 0)
+                // {
+                //     newWorldSpacePositions.Add(worldSpacePosition);
+                //     continue;
+                // }
+                // if (!use)
 
+                var modifier = 1.0f;
+                if (taperVelocityOnNegativeHemisphere)
+                {
+                    if (!_vectorField3D.wasInner)
+                    {
+                        var directionToCurrentPoint = worldSpacePosition - _vectorField3D.C;
+                        var dot = Vector3.Dot(directionToCurrentPoint, _vectorField3D.DesiredTranslation);
+
+                        if (dot < 0.0f)
+                        {
+                            var modifiedDot = Mathf.Min(1.0f, Mathf.Abs(dot));
+                            modifier = (1.0f - modifiedDot) / 8;
+                        }
+                    }
+                    else
+                    {
+                        var directionToCurrentPoint = Vector3.Distance(worldSpacePosition, _vectorField3D.C);
+                        
+
+                    }
+                }
+                
                 var distanceToGo = Vector3.Magnitude(_vectorField3D.DesiredTranslation);
                 var dt = Mathf.Min(2.0f, distanceToGo / v.magnitude);
 
-                worldSpacePosition += dt * v;
+                worldSpacePosition += dt * modifier * v;
 
                 newWorldSpacePositions.Add(worldSpacePosition);
             }
@@ -249,8 +289,13 @@ namespace GrabTool.Mesh
             var newPositions = newWorldSpacePositions.Select(meshTransform.InverseTransformPoint).ToArray();
 
             Assert.IsTrue(mesh.vertices.Length == newPositions.Length);
-            
+
             MeshUpdater.UpdateMeshes(mesh, null, newPositions);
+        }
+
+        public void OnMultiplierChanged(float value)
+        {
+            rMultiplier = 1.0f / value;
         }
 
         private class InputState

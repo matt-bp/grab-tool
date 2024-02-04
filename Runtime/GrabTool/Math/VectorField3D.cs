@@ -8,10 +8,16 @@ namespace GrabTool.Math
         /// R value specifying the inner ring, where the vector field is constant.
         /// </summary>
         public float Ri { get; set; }
+
+        public float AdjustedRi => Ri * RMultiplier;
         /// <summary>
         /// R value on the outer edge, past which the vector field will be zero.
         /// </summary>
         public float Ro { get; set; }
+
+        public float AdjustedRo => Ro * RMultiplier;
+
+        public float RMultiplier { get; set; } = 1.0f;
         public Vector3 C { get; set; }
         public Vector3 DesiredTranslation { get; set; }
 
@@ -24,9 +30,9 @@ namespace GrabTool.Math
         {
             wasInner = false;
             
-            var r = R(position);
+            var r = RMultiplier * R(position);
 
-            if (r >= Ro) // Outside the outer loop
+            if (r >= AdjustedRo) // Outside the outer loop
             {
                 return Vector3.zero;
             }
@@ -34,7 +40,7 @@ namespace GrabTool.Math
             var u = Vector3Helpers.OrthogonalVector(V);
             var w = Vector3.Cross(V, u).normalized;
 
-            if (r < Ri) // Inside the inner loop
+            if (r < AdjustedRi) // Inside the inner loop
             {
                 wasInner = true;
                 return Vector3.Cross(u, w); // Gradient P x Gradient Q
@@ -61,7 +67,7 @@ namespace GrabTool.Math
         
         private float B(float r)
         {
-            var ratio = (r - Ri) / (Ro - Ri);
+            var ratio = (r - AdjustedRi) / (AdjustedRo - AdjustedRi);
             
             return Bernstein.Polynomial(ratio, 4, 3) + Bernstein.Polynomial(ratio, 4, 4);
         }
@@ -77,7 +83,7 @@ namespace GrabTool.Math
         {
             if (r == 0) return Vector3.zero; // DbDr(r) will be zero anyways, seems like a reasonable default.
 
-            var dRdX = (x - C) / r;
+            var dRdX = RMultiplier * ((x - C) / r);
             return DbDr(r) * dRdX;
         }
         

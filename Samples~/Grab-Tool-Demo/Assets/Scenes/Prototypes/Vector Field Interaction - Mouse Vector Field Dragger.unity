@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1297,16 +1297,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rO: 2
   rI: 0.8
+  rMultiplier: 1
   grid: {fileID: 1244606841}
   showGridVisualization: 1
   updateGridWithMouse: 1
   meshToCheckCollision: {fileID: 1897364020}
-  thingsToUpdate:
-  - {fileID: 1148765471}
-  - {fileID: 2087605903}
-  - {fileID: 100300415}
-  - {fileID: 871867858}
-  - {fileID: 1660639935}
+  useNegativeHemisphere: 0
   mouseIndicatorPrefab: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   selectionMouseIndicator: {fileID: 661118260}
 --- !u!1 &2087605903
