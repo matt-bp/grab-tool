@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GrabTool.Math;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GrabTool.Mesh
 {
+    [RequireComponent(typeof(Models.MeshHistory))]
     public class MouseMeshDragger : MonoBehaviour
     {
         [SerializeField] private float size = 0.2f;
@@ -13,8 +16,9 @@ namespace GrabTool.Mesh
         private MouseIndicatorState _mouseIndicatorState;
         private Camera _camera;
         private readonly TrackingState _trackingState = new();
-        private MeshHistory _history;
+        private Models.MeshHistory _history;
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
+        public UnityEvent onDragComplete;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -24,6 +28,7 @@ namespace GrabTool.Mesh
             _camera = Camera.main;
             _mouseIndicatorState =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
+            _history = GetComponent<Models.MeshHistory>();
         }
 
         // Update is called once per frame
@@ -57,6 +62,8 @@ namespace GrabTool.Mesh
                     _trackingState.StopTracking();
 
                     _history.AddMesh(_trackingState.LastMesh);
+                    
+                    onDragComplete.Invoke();
                 }
             }
             else
@@ -90,12 +97,9 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButtonDown(0))
                 {
                     _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
-
-                    if (_history is null)
-                    {
-                        Debug.Log("Starting history");
-                        _history = new MeshHistory(hitObject.GetComponent<MeshFilter>().sharedMesh);
-                    }
+                    
+                    Debug.Log("Starting history");
+                    _history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
                 }
             }
             else
