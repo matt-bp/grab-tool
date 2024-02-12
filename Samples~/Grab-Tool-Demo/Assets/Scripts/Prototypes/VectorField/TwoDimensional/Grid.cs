@@ -52,25 +52,25 @@ namespace Prototypes.VectorField.TwoDimensional
         {
             if (Points == null) return;
 
-            Gizmos.color = Color.white;
-            Gizmos.DrawSphere(Vector3.zero, 0.1f);
-
-            Gizmos.color = Color.black;
+            // Gizmos.color = Color.white;
+            // Gizmos.DrawSphere(Vector3.zero, 0.1f);
+            //
+            // Gizmos.color = Color.black;
 
             
             foreach (var p in Points.Select((v, i) => new {v, i}))
             {
-                Handles.color = Colors[p.i];
+                // Handles.color = Colors[p.i];
                 
                 if (Velocities[p.i] == Vector3.zero)
                 {
-                    Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
+                    // Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0.1f, EventType.Repaint);    
                     continue;
                 };
 
                 var arrowLenght = useZAsLength ? Mathf.Abs(Velocities[p.i].z) : 0.2f;
                 
-                Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLenght, EventType.Repaint);
+                // Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Velocities[p.i]), arrowLenght, EventType.Repaint);
             }
             
             // foreach (var p in Points.Select((v, i) => new {v, i}))

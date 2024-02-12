@@ -91,12 +91,10 @@ namespace Prototypes.VectorField.ThreeDee
                     continue;
                 }
 
-                ;
-
-                var velocity = Velocities[p.i];
-                var rotation = Quaternion.LookRotation(velocity);
-                Handles.color = Colors[p.i];
-                Handles.ArrowHandleCap(0, transform.TransformPoint(p.v), rotation, 0.2f, EventType.Repaint);
+                // var velocity = Velocities[p.i];
+                // var rotation = Quaternion.LookRotation(velocity);
+                // Handles.color = Colors[p.i];
+                // Handles.ArrowHandleCap(0, transform.TransformPoint(p.v), rotation, 0.2f, EventType.Repaint);
             }
 
             // Gizmos.color = Color.black;
