@@ -1,6 +1,8 @@
 using System.Linq;
 using UnityEditor;
+#if UNITY_EDITOR
 using UnityEngine;
+#endif
 
 namespace GrabTool.Visualization
 {
@@ -76,6 +78,7 @@ namespace GrabTool.Visualization
             }
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             if (Points == null) return;
@@ -107,5 +110,6 @@ namespace GrabTool.Visualization
             //     Gizmos.DrawSphere(p.v, 0.1f);
             // }
         }
+#endif
     }
 }

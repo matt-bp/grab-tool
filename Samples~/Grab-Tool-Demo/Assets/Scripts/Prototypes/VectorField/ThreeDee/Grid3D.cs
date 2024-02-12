@@ -87,14 +87,14 @@ namespace Prototypes.VectorField.ThreeDee
                 if (Velocities[p.i] == Vector3.zero)
                 {
                     // Handles.color = Color.gray;
-                    // Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0, EventType.Repaint);    
+                    Handles.ArrowHandleCap(0, p.v, Quaternion.LookRotation(Vector3.left), 0, EventType.Repaint);    
                     continue;
                 }
 
-                // var velocity = Velocities[p.i];
-                // var rotation = Quaternion.LookRotation(velocity);
-                // Handles.color = Colors[p.i];
-                // Handles.ArrowHandleCap(0, transform.TransformPoint(p.v), rotation, 0.2f, EventType.Repaint);
+                var velocity = Velocities[p.i];
+                var rotation = Quaternion.LookRotation(velocity);
+                Handles.color = Colors[p.i];
+                Handles.ArrowHandleCap(0, transform.TransformPoint(p.v), rotation, 0.2f, EventType.Repaint);
             }
 
             // Gizmos.color = Color.black;
