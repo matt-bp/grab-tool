@@ -19,7 +19,7 @@ namespace GrabTool.Mesh
         private Models.MeshHistory _history;
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
         public UnityEvent onDragComplete;
-        private bool _enabled;
+        private bool _disabled;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -35,7 +35,7 @@ namespace GrabTool.Mesh
         // Update is called once per frame
         private void Update()
         {
-            if (!_enabled) return;
+            if (_disabled) return;
 
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
@@ -117,9 +117,9 @@ namespace GrabTool.Mesh
             size = value;
         }
 
-        public void SetEnabled(bool value)
+        public void SetDisabled(bool value)
         {
-            _enabled = value;
+            _disabled = value;
         }
 
         private class MouseIndicatorState
