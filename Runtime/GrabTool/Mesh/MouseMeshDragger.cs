@@ -101,8 +101,11 @@ namespace GrabTool.Mesh
                 {
                     _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
 
-                    Debug.Log("Starting history");
-                    _history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                    if (_history.NeedsCreated)
+                    {
+                        Debug.Log("Starting history");
+                        _history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                    }
                 }
             }
             else

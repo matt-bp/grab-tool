@@ -5,8 +5,8 @@ namespace GrabTool.Models
 {
     public class MeshHistory : MonoBehaviour
     {
+        public bool NeedsCreated => _meshHistory == null;
         [CanBeNull] private Mesh.MeshHistory _meshHistory;
-        
         [CanBeNull] public UnityEngine.Mesh CurrentMesh => _meshHistory?.CurrentMesh;
         
         public void SetInitialMesh(UnityEngine.Mesh startingMesh)
