@@ -35,7 +35,7 @@ namespace GrabTool.Mesh
         // Update is called once per frame
         private void Update()
         {
-            if (!enabled) return;
+            if (!_enabled) return;
 
             var ray = _camera.ScreenPointToRay(Input.mousePosition);
 
