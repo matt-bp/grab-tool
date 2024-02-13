@@ -5,20 +5,20 @@ using GrabTool.Math;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace GrabTool.Mesh
 {
-    [RequireComponent(typeof(Models.MeshHistory))]
     public class MouseMeshDragger : MonoBehaviour
     {
         [SerializeField] private float size = 0.2f;
         [SerializeField] private GameObject mouseIndicator;
+        [SerializeField] private Models.MeshHistory history;
+        [SerializeField] private MeshFilter[] meshesToCheckCollision;
+        public UnityEvent onDragComplete;
         private MouseIndicatorState _mouseIndicatorState;
         private Camera _camera;
         private readonly TrackingState _trackingState = new();
-        private Models.MeshHistory _history;
-        [SerializeField] private MeshFilter[] meshesToCheckCollision;
-        public UnityEvent onDragComplete;
         private bool _disabled;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
@@ -29,7 +29,6 @@ namespace GrabTool.Mesh
             _camera = Camera.main;
             _mouseIndicatorState =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
-            _history = GetComponent<Models.MeshHistory>();
         }
 
         // Update is called once per frame
@@ -64,7 +63,7 @@ namespace GrabTool.Mesh
                 {
                     _trackingState.StopTracking();
 
-                    _history.AddMesh(_trackingState.LastMesh);
+                    history.AddMesh(_trackingState.LastMesh);
 
                     onDragComplete.Invoke();
                 }
@@ -80,9 +79,9 @@ namespace GrabTool.Mesh
                 if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
 #endif
                 {
-                    _history.Undo();
+                    history.Undo();
 
-                    _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
+                    _trackingState.UpdateMeshes(history.CurrentMesh.vertices);
                 }
             }
         }
@@ -101,10 +100,10 @@ namespace GrabTool.Mesh
                 {
                     _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
 
-                    if (_history.NeedsCreated)
+                    if (history.NeedsCreated)
                     {
                         Debug.Log("Starting history");
-                        _history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
+                        history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
                     }
                 }
             }
