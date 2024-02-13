@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1203341669206456519}
   - component: {fileID: 3987893036627069965}
   - component: {fileID: 1583667747325492555}
+  - component: {fileID: -1395100771894082133}
   m_Layer: 0
   m_Name: cloth_30x15
   m_TagString: Untagged
@@ -96,3 +97,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fb72753e4a4e4d94dd16f50e9945d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!64 &-1395100771894082133
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3195070730652265944}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 7629811779324647873, guid: ac27515596d00364799771130739334a, type: 3}

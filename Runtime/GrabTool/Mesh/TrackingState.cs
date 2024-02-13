@@ -9,21 +9,20 @@ namespace GrabTool.Mesh
     {
         public bool CurrentlyTracking { get; private set; }
         public Vector3 InitialPosition { get; private set; }
+        public int[] ConstantIndices { get; private set; }
+        public UnityEngine.Mesh LastMesh { get; private set; }
         private GameObject _hitObject;
-        private UnityEngine.Mesh _meshToUpdate;
         private MeshCollider _meshCollider;
         private Dictionary<int, (Vector3 LocalPoint, float CloseRatio)> _indicesAndOriginalPositions;
         private AnimationCurve _falloff;
-
-        public UnityEngine.Mesh LastMesh => _meshToUpdate;
-
-        public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius,
+        
+        public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius, float constantRadius,
             AnimationCurve falloff)
         {
             CurrentlyTracking = true;
             InitialPosition = initialHitPosition;
             _hitObject = hitObject;
-            _meshToUpdate = hitObject.GetComponent<MeshFilter>().sharedMesh;
+            LastMesh = hitObject.GetComponent<MeshFilter>().sharedMesh;
             _meshCollider = hitObject.GetComponent<MeshCollider>();
             _falloff = falloff;
 
@@ -33,17 +32,23 @@ namespace GrabTool.Mesh
 
             float GetWorldSpaceDistance(Vector3 p) =>
                 Vector3.Distance(hitObject.transform.TransformPoint(p), initialHitPosition);
-            
-            _indicesAndOriginalPositions = _meshToUpdate.vertices
+
+            var allIndicesAndPositions = LastMesh.vertices
                 .Select((v, i) => new { v, i, closeRatio = GetWorldSpaceDistance(v) / radius })
-                .Where(x => x.closeRatio is >= 0 and <= 1)
+                .ToList();
+            
+            _indicesAndOriginalPositions = allIndicesAndPositions.Where(x => x.closeRatio is >= 0 and <= 1)
                 .ToDictionary(x => x.i, x => (x.v, x.closeRatio));
+
+            ConstantIndices = allIndicesAndPositions.Where(x => x.closeRatio >= 0 && x.closeRatio <= constantRadius)
+                .Select(x => x.i)
+                .ToArray();
         }
 
         public void UpdateIndices(Vector3 worldMousePosition)
         {
             var localDelta = _hitObject.transform.InverseTransformVector(worldMousePosition - InitialPosition);
-            var newPositions = _meshToUpdate.vertices;
+            var newPositions = LastMesh.vertices;
 
             if (!_indicesAndOriginalPositions.Any()) return;
 
@@ -60,13 +65,13 @@ namespace GrabTool.Mesh
 
         public void UpdateMeshes(Vector3[] newPositions)
         {
-            _meshToUpdate.vertices = newPositions;
-            _meshToUpdate.RecalculateBounds();
-            _meshToUpdate.RecalculateNormals();
+            LastMesh.vertices = newPositions;
+            LastMesh.RecalculateBounds();
+            LastMesh.RecalculateNormals();
 
             // Need to assign the mesh every frame to get intersections happening correctly.
             // See: https://forum.unity.com/threads/how-to-update-a-mesh-collider.32467/
-            _meshCollider.sharedMesh = _meshToUpdate;
+            _meshCollider.sharedMesh = LastMesh;
         }
 
         public void StopTracking()

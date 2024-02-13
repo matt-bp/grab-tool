@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GrabTool.Math;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,15 +12,22 @@ namespace GrabTool.Mesh
 {
     public class MouseMeshDragger : MonoBehaviour
     {
-        [SerializeField] private float size = 0.2f;
+        [Tooltip("This is the minimum radius used for selecting the mesh.")]
+        [SerializeField] private float minimumRadius = 0.1f;
+        [SerializeField] private float constantRatio = 4.0f;
+        [SerializeField] private Material constantIndicatorMaterial;
         [SerializeField] private GameObject mouseIndicator;
         [SerializeField] private Models.MeshHistory history;
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
         public UnityEvent onDragComplete;
         private MouseIndicatorState _mouseIndicatorState;
+        private MouseIndicatorState _constantMouseIndicator;
         private Camera _camera;
         private readonly TrackingState _trackingState = new();
         private bool _disabled;
+        private float _currentRadius;
+        private float ConstantRadius => _currentRadius / constantRatio;
+        public int[] ConstantIndices => _trackingState.ConstantIndices;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -28,7 +36,11 @@ namespace GrabTool.Mesh
         {
             _camera = Camera.main;
             _mouseIndicatorState =
-                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity));
+                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity), null);
+            _constantMouseIndicator =
+                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity), constantIndicatorMaterial);
+            
+            _currentRadius = minimumRadius;
         }
 
         // Update is called once per frame
@@ -44,7 +56,8 @@ namespace GrabTool.Mesh
                 if (Input.GetMouseButton(0))
                 {
                     _mouseIndicatorState.Hide();
-
+                    _constantMouseIndicator.Hide();
+                    
                     // I need that point in a plane parallel to the camera XY plane.
                     // - Get the camera normal, and reverse it
                     var planeNormal = -_camera.transform.forward;
@@ -94,11 +107,14 @@ namespace GrabTool.Mesh
                 var worldSpacePosition = mouseHit.Point;
 
                 _mouseIndicatorState.Show();
-                _mouseIndicatorState.UpdatePosition(worldSpacePosition, size);
+                _mouseIndicatorState.UpdatePosition(worldSpacePosition, _currentRadius);
 
+                _constantMouseIndicator.Show();
+                _constantMouseIndicator.UpdatePosition(worldSpacePosition, ConstantRadius);
+                
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _trackingState.StartTracking(worldSpacePosition, hitObject, size, falloffCurve);
+                    _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, ConstantRadius, falloffCurve);
 
                     if (history.NeedsCreated)
                     {
@@ -116,7 +132,7 @@ namespace GrabTool.Mesh
 
         public void OnSizeChanged(float value)
         {
-            size = value;
+            _currentRadius = Mathf.Max(value, minimumRadius);
         }
 
         public void SetDisabled(bool value)
@@ -129,10 +145,15 @@ namespace GrabTool.Mesh
             private readonly GameObject _instance;
             private readonly LineRenderer _lineRenderer;
 
-            public MouseIndicatorState(GameObject instance)
+            public MouseIndicatorState(GameObject instance, [CanBeNull] Material material)
             {
                 _instance = instance;
                 _lineRenderer = instance.GetComponent<LineRenderer>();
+
+                if (material != null)
+                {
+                    _lineRenderer.material = material;
+                }
             }
 
             public void UpdatePosition(Vector3 position, float size)

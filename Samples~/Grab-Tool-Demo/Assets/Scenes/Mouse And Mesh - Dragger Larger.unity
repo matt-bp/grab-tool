@@ -219,11 +219,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fb72753e4a4e4d94dd16f50e9945d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!33 &185672684 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 3070abe886f96f042a0ff8af9a6c50b0, type: 3}
-  m_PrefabInstance: {fileID: 185672680}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &469361955
 GameObject:
   m_ObjectHideFlags: 0
@@ -901,7 +896,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1297467687}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b6f0c3e3adb40918651e11ba00faced, type: 3}
   m_Name: 
@@ -912,7 +907,7 @@ MonoBehaviour:
   mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   history: {fileID: 2102978859}
   meshesToCheckCollision:
-  - {fileID: 185672684}
+  - {fileID: 4966674921451235038}
   onDragComplete:
     m_PersistentCalls:
       m_Calls: []
@@ -947,7 +942,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1297467687}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24d26e0c1989448b87ecf7eae771d47e, type: 3}
   m_Name: 
