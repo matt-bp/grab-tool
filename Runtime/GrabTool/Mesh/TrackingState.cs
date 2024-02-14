@@ -16,7 +16,7 @@ namespace GrabTool.Mesh
         private Dictionary<int, (Vector3 LocalPoint, float CloseRatio)> _indicesAndOriginalPositions;
         private AnimationCurve _falloff;
         
-        public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius, float constantRadius,
+        public void StartTracking(Vector3 initialHitPosition, GameObject hitObject, float radius, float constantUpperLimit,
             AnimationCurve falloff)
         {
             CurrentlyTracking = true;
@@ -40,7 +40,7 @@ namespace GrabTool.Mesh
             _indicesAndOriginalPositions = allIndicesAndPositions.Where(x => x.closeRatio is >= 0 and <= 1)
                 .ToDictionary(x => x.i, x => (x.v, x.closeRatio));
 
-            ConstantIndices = allIndicesAndPositions.Where(x => x.closeRatio >= 0 && x.closeRatio <= constantRadius)
+            ConstantIndices = allIndicesAndPositions.Where(x => x.closeRatio >= 0 && x.closeRatio <= constantUpperLimit)
                 .Select(x => x.i)
                 .ToArray();
         }

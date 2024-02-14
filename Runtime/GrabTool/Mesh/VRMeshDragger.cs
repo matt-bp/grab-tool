@@ -14,7 +14,7 @@ namespace GrabTool.Mesh
         private readonly TrackingState _trackingState = new();
         private MeshHistory _history;
         private float _currentRadius;
-        private float _constantRadius;
+        [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
         public float CurrentRadius => _currentRadius;
 
         [Header("Settings")] [SerializeField] private float minimumRadius = 0.1f;
@@ -45,7 +45,6 @@ namespace GrabTool.Mesh
         private void Start()
         {
             _currentRadius = minimumRadius;
-            _constantRadius = _currentRadius / 4.0f;
             UpdateRadiusUsages();
         }
 
@@ -97,7 +96,7 @@ namespace GrabTool.Mesh
             Debug.Log("Started tracking, on the hunt...");
 
             _trackingState.StartTracking(_hoverStatus.InteractorGameObject.transform.position,
-                _hoverStatus.HoveredGameObject, _currentRadius, _constantRadius, falloffCurve);
+                _hoverStatus.HoveredGameObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
 
             // Do history things
             if (_history is null)
@@ -119,8 +118,7 @@ namespace GrabTool.Mesh
         public void OnRadiusChanged(float value)
         {
             _currentRadius = System.Math.Max(value, minimumRadius);
-            _constantRadius = _currentRadius / 4.0f;
-            
+
             UpdateRadiusUsages();
         }
 

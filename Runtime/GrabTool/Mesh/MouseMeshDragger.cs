@@ -14,7 +14,7 @@ namespace GrabTool.Mesh
     {
         [Tooltip("This is the minimum radius used for selecting the mesh.")]
         [SerializeField] private float minimumRadius = 0.1f;
-        [SerializeField] private float constantRatio = 4.0f;
+        [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
         [SerializeField] private Material constantIndicatorMaterial;
         [SerializeField] private GameObject mouseIndicator;
         [SerializeField] private Models.MeshHistory history;
@@ -26,7 +26,7 @@ namespace GrabTool.Mesh
         private readonly TrackingState _trackingState = new();
         private bool _disabled;
         private float _currentRadius;
-        private float ConstantRadius => _currentRadius / constantRatio;
+        private float ConstantRadius => constantUpperLimitMultiplier * _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
@@ -114,7 +114,7 @@ namespace GrabTool.Mesh
                 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, ConstantRadius, falloffCurve);
+                    _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
 
                     if (history.NeedsCreated)
                     {
