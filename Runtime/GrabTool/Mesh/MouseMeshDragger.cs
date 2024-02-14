@@ -111,17 +111,16 @@ namespace GrabTool.Mesh
 
                 _constantMouseIndicator.Show();
                 _constantMouseIndicator.UpdatePosition(worldSpacePosition, ConstantRadius);
-                
-                if (Input.GetMouseButtonDown(0))
-                {
-                    _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
 
-                    if (history.NeedsCreated)
-                    {
-                        Debug.Log("Starting history");
-                        history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
-                    }
-                }
+                // If we haven't clicked the mouse button while over the mesh, we won't start!
+                if (!Input.GetMouseButtonDown(0)) return;
+                
+                _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
+
+                if (!history.NeedsCreated) return;
+                    
+                Debug.Log("Starting history");
+                history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
             }
             else
             {

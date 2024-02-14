@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Inputs;
@@ -13,11 +14,12 @@ namespace GrabTool.Mesh
         private readonly VRHoverStatus _hoverStatus = new();
         private readonly TrackingState _trackingState = new();
         private bool _disabled;
-        private MeshHistory _history;
         private float _currentRadius;
         [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
         public float CurrentRadius => _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
+
+        [Header("Models")] [SerializeField] private Models.MeshHistory history;
 
         [Header("Settings")] [SerializeField] private float minimumRadius = 0.1f;
 
@@ -32,6 +34,8 @@ namespace GrabTool.Mesh
 
         [SerializeField] [Tooltip("The Input System Action that will be used to signify undo.")]
         private InputActionProperty undoAction = new(new InputAction("Undo Action"));
+
+        public UnityEvent onDragComplete;
 
         protected void OnEnable()
         {
@@ -54,16 +58,16 @@ namespace GrabTool.Mesh
         private void Update()
         {
             if (_disabled) return;
-            
+
             if (!_trackingState.CurrentlyTracking)
             {
                 CheckForHoverAndStart();
 
-                if (undoAction.action.WasPressedThisFrame() && undoAction.action.IsPressed() && _history != null)
+                if (undoAction.action.WasPressedThisFrame() && undoAction.action.IsPressed())
                 {
-                    _history.Undo();
+                    history.Undo();
 
-                    _trackingState.UpdateMeshes(_history.CurrentMesh.vertices);
+                    _trackingState.UpdateMeshes(history.CurrentMesh.vertices);
                 }
 
                 return;
@@ -104,11 +108,10 @@ namespace GrabTool.Mesh
                 _hoverStatus.HoveredGameObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
 
             // Do history things
-            if (_history is null)
-            {
-                Debug.Log("Starting history");
-                _history = new MeshHistory(_hoverStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
-            }
+            if (!history.NeedsCreated) return;
+            
+            Debug.Log("Starting history");
+            history.SetInitialMesh(_hoverStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
         }
 
         private void StopTracking()
@@ -117,7 +120,9 @@ namespace GrabTool.Mesh
 
             _trackingState.StopTracking();
 
-            _history.AddMesh(_trackingState.LastMesh);
+            history.AddMesh(_trackingState.LastMesh);
+
+            onDragComplete.Invoke();
         }
 
         public void OnRadiusChanged(float value)
@@ -140,7 +145,7 @@ namespace GrabTool.Mesh
             constantColliderVisualization.transform.localScale =
                 constantUpperLimitMultiplier * colliderVisualization.transform.localScale;
         }
-        
+
         public void SetDisabled(bool value)
         {
             _disabled = value;
