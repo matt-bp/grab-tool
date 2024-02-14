@@ -12,10 +12,12 @@ namespace GrabTool.Mesh
     {
         private readonly VRHoverStatus _hoverStatus = new();
         private readonly TrackingState _trackingState = new();
+        private bool _disabled;
         private MeshHistory _history;
         private float _currentRadius;
         [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
         public float CurrentRadius => _currentRadius;
+        public int[] ConstantIndices => _trackingState.ConstantIndices;
 
         [Header("Settings")] [SerializeField] private float minimumRadius = 0.1f;
 
@@ -23,6 +25,7 @@ namespace GrabTool.Mesh
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
         [Header("View")] [SerializeField] private GameObject colliderVisualization;
+        [SerializeField] private GameObject constantColliderVisualization;
 
         [SerializeField] [Tooltip("The Input System Action that will be used to signify a grab.")]
         private InputActionProperty grabAction = new(new InputAction("Grab Action"));
@@ -50,6 +53,8 @@ namespace GrabTool.Mesh
 
         private void Update()
         {
+            if (_disabled) return;
+            
             if (!_trackingState.CurrentlyTracking)
             {
                 CheckForHoverAndStart();
@@ -131,6 +136,14 @@ namespace GrabTool.Mesh
 
             colliderVisualization.transform.localScale =
                 2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
+
+            constantColliderVisualization.transform.localScale =
+                constantUpperLimitMultiplier * colliderVisualization.transform.localScale;
+        }
+        
+        public void SetDisabled(bool value)
+        {
+            _disabled = value;
         }
 
         #region Event Listeners
