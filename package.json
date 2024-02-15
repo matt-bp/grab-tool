@@ -1,6 +1,6 @@
 {
   "name": "com.matt.grab-tool",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "displayName": "Grab Tool",
   "description": "A grabbing tool.",
   "unity": "2021.3",

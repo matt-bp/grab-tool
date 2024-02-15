@@ -26,7 +26,15 @@ namespace GrabTool.Mesh
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
 
-        [Header("View")] [SerializeField] private GameObject colliderVisualization;
+        [Header("View")] [SerializeField] private SphereCollider sphereCollider;
+
+        public SphereCollider SphereCollider
+        {
+            get => sphereCollider;
+            set => sphereCollider = value;
+        }
+
+        [SerializeField] private GameObject colliderVisualization;
         [SerializeField] private GameObject constantColliderVisualization;
 
         [SerializeField] [Tooltip("The Input System Action that will be used to signify a grab.")]
@@ -109,7 +117,7 @@ namespace GrabTool.Mesh
 
             // Do history things
             if (!history.NeedsCreated) return;
-            
+
             Debug.Log("Starting history");
             history.SetInitialMesh(_hoverStatus.HoveredGameObject.GetComponent<MeshFilter>().sharedMesh);
         }
@@ -134,10 +142,7 @@ namespace GrabTool.Mesh
 
         private void UpdateRadiusUsages()
         {
-            if (_hoverStatus.InteractorGameObject != null)
-            {
-                _hoverStatus.InteractorGameObject.GetComponent<SphereCollider>().radius = _currentRadius;
-            }
+            sphereCollider.radius = _currentRadius;
 
             colliderVisualization.transform.localScale =
                 2.0f * new Vector3(_currentRadius, _currentRadius, _currentRadius);
