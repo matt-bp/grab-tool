@@ -126,6 +126,7 @@ namespace GrabTool.Mesh
             {
                 // If we're not over the cloth, we for sure wont see anything
                 _mouseIndicatorState.Hide();
+                _constantMouseIndicator.Hide();
             }
         }
 
