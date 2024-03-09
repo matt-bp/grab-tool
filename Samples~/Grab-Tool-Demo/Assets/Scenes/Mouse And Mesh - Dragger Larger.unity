@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -902,7 +902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minimumRadius: 0.1
-  constantRatio: 4
+  constantUpperLimitMultiplier: 0.25
   constantIndicatorMaterial: {fileID: 2100000, guid: e61bbe768d6cba245b788a7a0a682679, type: 2}
   mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   history: {fileID: 2102978859}
@@ -1678,6 +1678,6 @@ PrefabInstance:
     - target: {fileID: 3987893036627069965, guid: dcfe7f4e6eab92041a6e1982bd562cdc, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: a691e58ef7e6a0046b29ac0a74cd240b, type: 2}
+      objectReference: {fileID: 2100000, guid: f13922bb4c0503746ba8266b2843aa4e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dcfe7f4e6eab92041a6e1982bd562cdc, type: 3}
