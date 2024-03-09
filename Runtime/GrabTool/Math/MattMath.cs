@@ -19,25 +19,34 @@ namespace GrabTool.Math
                 .Select(g => g.Select(x => GetVertexInWorldSpace(x.v)).ToList())
                 .ToList();
 
+            var distanceToOrigin = float.MaxValue;
+            Intersections.CustomRaycastHit currentHit = null;
+
             foreach (var triangle in triangles)
             {
                 Debug.Assert(triangle.Count == 3);
 
                 // Intersect ray with triangle
-                if (Intersections.RayTriangle(ray, triangle[0], triangle[1], triangle[2], out var triangleHit))
-                {
-                    hit = new Intersections.CustomRaycastHit()
-                    {
-                        Point = triangleHit.Point,
-                        Normal = triangleHit.Normal,
-                        Transform = gameObjectTransform
-                    };
-                    return true;
-                }
-            }
+                if (!Intersections.RayTriangle(ray, triangle[0], triangle[1], triangle[2], out var triangleHit))
+                    continue;
 
-            hit = new Intersections.CustomRaycastHit();
-            return false;
+                var newDistance = Vector3.Distance(ray.origin, triangleHit.Point);
+
+                if (newDistance >= distanceToOrigin)
+                    continue;
+                
+                currentHit = new Intersections.CustomRaycastHit()
+                {
+                    Point = triangleHit.Point,
+                    Normal = triangleHit.Normal,
+                    Transform = gameObjectTransform
+                };
+
+                distanceToOrigin = newDistance;
+            }
+            
+            hit = currentHit ?? new Intersections.CustomRaycastHit();
+            return currentHit != null;
         }
     }
 }
