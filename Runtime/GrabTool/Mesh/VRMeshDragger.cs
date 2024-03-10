@@ -15,7 +15,8 @@ namespace GrabTool.Mesh
         private readonly TrackingState _trackingState = new();
         private bool _disabled;
         private float _currentRadius;
-        [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
+
+        [Obsolete("Don't use this to increment the radius.")]
         public float CurrentRadius => _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
@@ -25,6 +26,8 @@ namespace GrabTool.Mesh
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
+
+        [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
 
         [Header("View")] [SerializeField] private SphereCollider sphereCollider;
 
