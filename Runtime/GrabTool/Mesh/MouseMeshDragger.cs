@@ -25,6 +25,7 @@ namespace GrabTool.Mesh
         private Camera _camera;
         private readonly TrackingState _trackingState = new();
         private bool _disabled;
+        private bool _stoppedByCameraMovement;
         private float _currentRadius;
         private float ConstantRadius => constantUpperLimitMultiplier * _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
@@ -72,7 +73,7 @@ namespace GrabTool.Mesh
                     }
                 }
 
-                if (Input.GetMouseButtonUp(0))
+                if (Input.GetMouseButtonUp(0) || _stoppedByCameraMovement)
                 {
                     _trackingState.StopTracking();
 
@@ -138,6 +139,11 @@ namespace GrabTool.Mesh
         public void SetDisabled(bool value)
         {
             _disabled = value;
+        }
+
+        public void SetStoppedByCameraMovement(bool value)
+        {
+            _stoppedByCameraMovement = value;
         }
 
         private class MouseIndicatorState
