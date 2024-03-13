@@ -21,7 +21,7 @@ namespace GrabTool.Mesh
         [SerializeField] private GameObject mouseIndicator;
         [SerializeField] private Models.MeshHistory history;
 
-        public OnClickDragPlaneNormal onClickDragPlaneNormal;
+        [SerializeField] private OnClickDragPlaneNormal onClickDragPlaneNormal;
 
         private Vector3 PlaneNormal => onClickDragPlaneNormal switch
         {
@@ -31,6 +31,11 @@ namespace GrabTool.Mesh
             OnClickDragPlaneNormal.XZ => Vector3.up,
             _ => throw new ArgumentOutOfRangeException()
         };
+
+        public void SetPlaneNormalType(int value)
+        {
+            onClickDragPlaneNormal = (OnClickDragPlaneNormal)value;
+        }
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
         public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
