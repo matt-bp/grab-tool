@@ -35,6 +35,7 @@ namespace GrabTool.Mesh
 
             var allIndicesAndPositions = LastMesh.vertices
                 .Select((v, i) => new { v, i, closeRatio = GetWorldSpaceDistance(v) / radius })
+                .OrderBy(x => x.closeRatio)
                 .ToList();
             
             _indicesAndOriginalPositions = allIndicesAndPositions.Where(x => x.closeRatio is >= 0 and <= 1)
@@ -43,6 +44,14 @@ namespace GrabTool.Mesh
             ConstantIndices = allIndicesAndPositions.Where(x => x.closeRatio >= 0 && x.closeRatio <= constantUpperLimit)
                 .Select(x => x.i)
                 .ToArray();
+            
+            // Get average normal, and closest normal?
+            var normals = allIndicesAndPositions.Select(x => x.i).Select(i => LastMesh.normals[i]).ToList();
+            // Get average of a list of normals (unit test!)
+
+            var closestNormal = normals.First(); // since we've ordered it by closeRatio before
+            
+            // normal of constant indices (as closest)? 
         }
 
         public void UpdateIndices(Vector3 worldMousePosition)

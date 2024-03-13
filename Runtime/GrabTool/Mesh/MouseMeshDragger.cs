@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -12,14 +13,31 @@ namespace GrabTool.Mesh
 {
     public class MouseMeshDragger : MonoBehaviour
     {
-        [Tooltip("This is the minimum radius used for selecting the mesh.")]
-        [SerializeField] private float minimumRadius = 0.1f;
+        [Tooltip("This is the minimum radius used for selecting the mesh.")] [SerializeField]
+        private float minimumRadius = 0.1f;
+
         [SerializeField] private float constantUpperLimitMultiplier = 0.25f;
         [SerializeField] private Material constantIndicatorMaterial;
         [SerializeField] private GameObject mouseIndicator;
         [SerializeField] private Models.MeshHistory history;
+
+        public OnClickDragPlaneNormal onClickDragPlaneNormal;
+
+        private Vector3 PlaneNormal => onClickDragPlaneNormal switch
+        {
+            OnClickDragPlaneNormal.Screen => -_camera.transform.forward,
+            OnClickDragPlaneNormal.XY => Vector3.forward,
+            OnClickDragPlaneNormal.YZ => Vector3.right,
+            OnClickDragPlaneNormal.XZ => Vector3.up,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
+        public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
+
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
         public UnityEvent onDragComplete;
+        
         private MouseIndicatorState _mouseIndicatorState;
         private MouseIndicatorState _constantMouseIndicator;
         private Camera _camera;
@@ -30,17 +48,15 @@ namespace GrabTool.Mesh
         private float ConstantRadius => constantUpperLimitMultiplier * _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
-        [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
-        public AnimationCurve falloffCurve = new(new Keyframe(0, 1), new Keyframe(1, 0));
-
         private void Start()
         {
             _camera = Camera.main;
             _mouseIndicatorState =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity), null);
             _constantMouseIndicator =
-                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity), constantIndicatorMaterial);
-            
+                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity),
+                    constantIndicatorMaterial);
+
             _currentRadius = minimumRadius;
         }
 
@@ -58,16 +74,14 @@ namespace GrabTool.Mesh
                 {
                     _mouseIndicatorState.Hide();
                     _constantMouseIndicator.Hide();
-                    
-                    // I need that point in a plane parallel to the camera XY plane.
-                    // - Get the camera normal, and reverse it
-                    var planeNormal = -_camera.transform.forward;
-                    // - Get the point that we started at (1st mouse down)
+
+                    // Find closest point on a ray to another ray.
+
                     var point = _trackingState.InitialPosition;
 
-                    Debug.DrawRay(point, planeNormal * 2);
+                    Debug.DrawRay(point, PlaneNormal * 2, Color.red);
 
-                    if (Intersections.RayPlane(ray, point, planeNormal, out var hit))
+                    if (Intersections.RayPlane(ray, point, PlaneNormal, out var hit))
                     {
                         _trackingState.UpdateIndices(hit.Point);
                     }
@@ -115,11 +129,12 @@ namespace GrabTool.Mesh
 
                 // If we haven't clicked the mouse button while over the mesh, we won't start!
                 if (!Input.GetMouseButtonDown(0)) return;
-                
-                _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
+
+                _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius,
+                    constantUpperLimitMultiplier, falloffCurve);
 
                 if (!history.NeedsCreated) return;
-                    
+
                 Debug.Log("Starting history");
                 history.SetInitialMesh(hitObject.GetComponent<MeshFilter>().sharedMesh);
             }
@@ -180,6 +195,14 @@ namespace GrabTool.Mesh
             {
                 _lineRenderer.enabled = true;
             }
+        }
+
+        public enum OnClickDragPlaneNormal
+        {
+            Screen,
+            XY,
+            YZ,
+            XZ
         }
     }
 }
