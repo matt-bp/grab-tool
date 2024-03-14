@@ -18,6 +18,7 @@ namespace GrabTool.Mesh
 
         [Obsolete("Don't use this to increment the radius.")]
         public float CurrentRadius => _currentRadius;
+
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
         [Header("Models")] [SerializeField] private Models.MeshHistory history;
@@ -116,7 +117,8 @@ namespace GrabTool.Mesh
             Debug.Log("Started tracking, on the hunt...");
 
             _trackingState.StartTracking(_hoverStatus.InteractorGameObject.transform.position,
-                _hoverStatus.HoveredGameObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve);
+                _hoverStatus.HoveredGameObject, _currentRadius, constantUpperLimitMultiplier, falloffCurve,
+                Vector3.zero);
 
             // Do history things
             if (!history.NeedsCreated) return;

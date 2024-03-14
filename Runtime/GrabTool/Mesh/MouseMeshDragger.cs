@@ -23,12 +23,13 @@ namespace GrabTool.Mesh
 
         [SerializeField] private OnClickDragPlaneNormal onClickDragPlaneNormal;
 
-        private Vector3 PlaneNormal => onClickDragPlaneNormal switch
+        public Vector3 PlaneNormal => onClickDragPlaneNormal switch
         {
             OnClickDragPlaneNormal.Screen => -_camera.transform.forward,
             OnClickDragPlaneNormal.XY => Vector3.forward,
             OnClickDragPlaneNormal.YZ => Vector3.right,
             OnClickDragPlaneNormal.XZ => Vector3.up,
+            OnClickDragPlaneNormal.Surface => _trackingState.SurfaceNormal,
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -42,7 +43,7 @@ namespace GrabTool.Mesh
 
         [SerializeField] private MeshFilter[] meshesToCheckCollision;
         public UnityEvent onDragComplete;
-        
+
         private MouseIndicatorState _mouseIndicatorState;
         private MouseIndicatorState _constantMouseIndicator;
         private Camera _camera;
@@ -84,7 +85,7 @@ namespace GrabTool.Mesh
 
                     var point = _trackingState.InitialPosition;
 
-                    Debug.DrawRay(point, PlaneNormal * 2, Color.red);
+                    Debug.DrawRay(point, PlaneNormal * 2, Color.green);
 
                     if (Intersections.RayPlane(ray, point, PlaneNormal, out var hit))
                     {
@@ -136,7 +137,7 @@ namespace GrabTool.Mesh
                 if (!Input.GetMouseButtonDown(0)) return;
 
                 _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius,
-                    constantUpperLimitMultiplier, falloffCurve);
+                    constantUpperLimitMultiplier, falloffCurve, mouseHit.Normal);
 
                 if (!history.NeedsCreated) return;
 
@@ -207,7 +208,8 @@ namespace GrabTool.Mesh
             Screen,
             XY,
             YZ,
-            XZ
+            XZ,
+            Surface
         }
     }
 }
