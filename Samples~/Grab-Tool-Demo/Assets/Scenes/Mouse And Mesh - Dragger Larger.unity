@@ -906,7 +906,7 @@ MonoBehaviour:
   constantIndicatorMaterial: {fileID: 2100000, guid: e61bbe768d6cba245b788a7a0a682679, type: 2}
   mouseIndicator: {fileID: 4524481222472927990, guid: 90c74404b1caff5469c0690f4ff27001, type: 3}
   history: {fileID: 2102978859}
-  onClickDragPlaneNormal: 0
+  onClickDrag: 6
   falloffCurve:
     serializedVersion: 2
     m_Curve:
@@ -936,6 +936,7 @@ MonoBehaviour:
   onDragComplete:
     m_PersistentCalls:
       m_Calls: []
+  slideSensitivity: 60
 --- !u!114 &1297467690
 MonoBehaviour:
   m_ObjectHideFlags: 0

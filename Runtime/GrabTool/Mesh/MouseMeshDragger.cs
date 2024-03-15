@@ -1,18 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using GrabTool.Math;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace GrabTool.Mesh
 {
     public class MouseMeshDragger : MonoBehaviour
     {
+        private const float KMouseSensitivityMultiplier = 0.01f;
+        
         [Tooltip("This is the minimum radius used for selecting the mesh.")] [SerializeField]
         private float minimumRadius = 0.1f;
 
@@ -54,6 +55,15 @@ namespace GrabTool.Mesh
         private float ConstantRadius => constantUpperLimitMultiplier * _currentRadius;
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
+        public Vector3 CurrentSurfaceNormal => _trackingState.SurfaceNormal;
+        
+        [Tooltip("Multiplier for the slide sensitivity for moving a mesh along a vector.")]
+        public float slideSensitivity = 60.0f;
+        
+#if ENABLE_INPUT_SYSTEM
+        private InputAction _mouseAction;
+#endif
+
         private void Start()
         {
             _camera = Camera.main;
@@ -64,6 +74,14 @@ namespace GrabTool.Mesh
                     constantIndicatorMaterial);
 
             _currentRadius = minimumRadius;
+            
+#if ENABLE_INPUT_SYSTEM
+            var map = new InputActionMap("Unity Camera Controller");
+
+            _mouseAction = map.AddAction("look", binding: "<Mouse>/delta");
+
+            _mouseAction.Enable();
+#endif
         }
 
         // Update is called once per frame
@@ -81,7 +99,7 @@ namespace GrabTool.Mesh
                     _mouseIndicatorState.Hide();
                     _constantMouseIndicator.Hide();
 
-                    if (onClickDrag == OnClickDrag.VectorSurface)
+                    if (onClickDrag is OnClickDrag.VectorSurface or OnClickDrag.VectorCamera)
                     {
                         UpdateIndicesBasedOnVector(ray);
                     }
@@ -134,6 +152,8 @@ namespace GrabTool.Mesh
                 // If we haven't clicked the mouse button while over the mesh, we won't start!
                 if (!Input.GetMouseButtonDown(0)) return;
 
+                _t = 0.0f;
+
                 _trackingState.StartTracking(worldSpacePosition, hitObject, _currentRadius,
                     constantUpperLimitMultiplier, falloffCurve, mouseHit.Normal);
 
@@ -150,16 +170,47 @@ namespace GrabTool.Mesh
             }
         }
 
+        // private Vector3 _rayRayDifference = Vector3.zero;
+        private float _t;
         private void UpdateIndicesBasedOnVector(Ray screenRay)
         {
-            var surfaceRay = new Ray(_trackingState.InitialPosition, _trackingState.SurfaceNormal);
-            Debug.DrawRay(surfaceRay.origin, surfaceRay.direction, Color.red);
+            if (onClickDrag == OnClickDrag.VectorCamera)
+            {
+                var normal = _camera.transform.position - _trackingState.InitialPosition;
+                var surfaceRay = new Ray(_trackingState.InitialPosition, normal);
 
-            var (_, t) = ClosestPoint.RayRay(screenRay, surfaceRay);
+                var mouseMovement = GetMouseMovement() * (KMouseSensitivityMultiplier * slideSensitivity);
+                var delta = -(mouseMovement.y - mouseMovement.x);
+                _t += delta;
 
-            var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(t);
+                var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(_t);
             
-            _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
+                _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
+            }
+            else
+            {
+                var surfaceRay = new Ray(_trackingState.InitialPosition, _trackingState.SurfaceNormal);
+                Debug.DrawRay(surfaceRay.origin, surfaceRay.direction, Color.red);
+
+                var (_, t) = ClosestPoint.RayRay(screenRay, surfaceRay);
+
+                var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(t);
+            
+                _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
+            }
+        }
+        
+        private Vector2 GetMouseMovement()
+        {
+            // try to compensate the diff between the two input systems by multiplying with empirical values
+#if ENABLE_INPUT_SYSTEM
+            var delta = _mouseAction.ReadValue<Vector2>();
+            delta *= 0.5f; // Account for scaling applied directly in Windows code by old input system.
+            delta *= 0.1f; // Account for sensitivity setting on old Mouse X and Y axes.
+            return delta;
+#else
+            return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+#endif
         }
 
         private void UpdateIndicesBasedOnPlane(Ray screenRay)
@@ -232,7 +283,8 @@ namespace GrabTool.Mesh
             PlaneYZ,
             PlaneXZ,
             PlaneSurface,
-            VectorSurface
+            VectorSurface,
+            VectorCamera
         }
     }
 }
