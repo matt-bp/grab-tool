@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using GrabTool.Math;
 
 namespace GrabTool.Mesh
 {
@@ -12,6 +13,7 @@ namespace GrabTool.Mesh
         public int[] ConstantIndices { get; private set; }
         public UnityEngine.Mesh LastMesh { get; private set; }
         public Vector3 SurfaceNormal { get; private set; }
+        public Vector3 AverageSurfaceNormal { get; private set; }
         private GameObject _hitObject;
         private MeshCollider _meshCollider;
         private Dictionary<int, (Vector3 LocalPoint, float CloseRatio)> _indicesAndOriginalPositions;
@@ -47,14 +49,7 @@ namespace GrabTool.Mesh
                 .ToArray();
 
             SurfaceNormal = surfaceNormal;
-
-            // Get average normal, and closest normal?
-            // var normals = allIndicesAndPositions.Select(x => x.i).Select(i => LastMesh.normals[i]).ToList();
-            // Get average of a list of normals (unit test!)
-
-            // var closestNormal = normals.First(); // since we've ordered it by closeRatio before
-
-            // normal of constant indices (as closest)? 
+            AverageSurfaceNormal = ConstantIndices.Select(i => LastMesh.normals[i]).ToList().Average();
         }
 
         public void UpdateIndices(Vector3 worldMousePosition)

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GrabTool.Math
@@ -48,6 +50,11 @@ namespace GrabTool.Math
         public static bool AnyNaN(this Vector3 vector)
         {
             return float.IsNaN(vector.x) || float.IsNaN(vector.y) || float.IsNaN(vector.z);
+        }
+
+        public static Vector3 Average(this List<Vector3> list)
+        {
+            return list.Aggregate(Vector3.zero, (current, vector) => current + vector) / list.Count;
         }
     }
 }
