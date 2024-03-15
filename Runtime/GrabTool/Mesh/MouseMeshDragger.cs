@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GrabTool.Math;
+using GrabTool.Orientation;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,7 +14,7 @@ namespace GrabTool.Mesh
     public class MouseMeshDragger : MonoBehaviour
     {
         private const float KMouseSensitivityMultiplier = 0.01f;
-        
+
         [Tooltip("This is the minimum radius used for selecting the mesh.")] [SerializeField]
         private float minimumRadius = 0.1f;
 
@@ -56,10 +57,10 @@ namespace GrabTool.Mesh
         public int[] ConstantIndices => _trackingState.ConstantIndices;
 
         public Vector3 CurrentSurfaceNormal => _trackingState.SurfaceNormal;
-        
+
         [Tooltip("Multiplier for the slide sensitivity for moving a mesh along a vector.")]
         public float slideSensitivity = 60.0f;
-        
+
 #if ENABLE_INPUT_SYSTEM
         private InputAction _mouseAction;
 #endif
@@ -68,13 +69,14 @@ namespace GrabTool.Mesh
         {
             _camera = Camera.main;
             _mouseIndicatorState =
-                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity), null);
+                new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity),
+                    null);
             _constantMouseIndicator =
                 new MouseIndicatorState(Instantiate(mouseIndicator, Vector3.zero, Quaternion.identity),
                     constantIndicatorMaterial);
 
             _currentRadius = minimumRadius;
-            
+
 #if ENABLE_INPUT_SYSTEM
             var map = new InputActionMap("Unity Camera Controller");
 
@@ -144,9 +146,11 @@ namespace GrabTool.Mesh
                 var worldSpacePosition = mouseHit.Point;
 
                 _mouseIndicatorState.Show();
+                _mouseIndicatorState.UpdateSurfaceNormal(mouseHit.Normal);
                 _mouseIndicatorState.UpdatePosition(worldSpacePosition, _currentRadius);
 
                 _constantMouseIndicator.Show();
+                _constantMouseIndicator.UpdateSurfaceNormal(mouseHit.Normal);
                 _constantMouseIndicator.UpdatePosition(worldSpacePosition, ConstantRadius);
 
                 // If we haven't clicked the mouse button while over the mesh, we won't start!
@@ -172,6 +176,7 @@ namespace GrabTool.Mesh
 
         // private Vector3 _rayRayDifference = Vector3.zero;
         private float _t;
+
         private void UpdateIndicesBasedOnVector(Ray screenRay)
         {
             if (onClickDrag == OnClickDrag.VectorCamera)
@@ -184,7 +189,7 @@ namespace GrabTool.Mesh
                 _t += delta;
 
                 var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(_t);
-            
+
                 _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
             }
             else
@@ -195,11 +200,11 @@ namespace GrabTool.Mesh
                 var (_, t) = ClosestPoint.RayRay(screenRay, surfaceRay);
 
                 var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(t);
-            
+
                 _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
             }
         }
-        
+
         private Vector2 GetMouseMovement()
         {
             // try to compensate the diff between the two input systems by multiplying with empirical values
@@ -240,10 +245,19 @@ namespace GrabTool.Mesh
             _stoppedByCameraMovement = value;
         }
 
+        public void ToggleBillboardOrSurfaceNormal()
+        {
+            _mouseIndicatorState.ToggleBillboardOrSurfaceNormal();
+            _constantMouseIndicator.ToggleBillboardOrSurfaceNormal();
+        }
+
         private class MouseIndicatorState
         {
             private readonly GameObject _instance;
             private readonly LineRenderer _lineRenderer;
+            private bool _isBillboard = true;
+            private readonly FaceNormal _faceNormal;
+            private readonly Billboard _billboard;
 
             public MouseIndicatorState(GameObject instance, [CanBeNull] Material material)
             {
@@ -254,6 +268,12 @@ namespace GrabTool.Mesh
                 {
                     _lineRenderer.material = material;
                 }
+                
+                _billboard = _instance.GetComponent<Billboard>();
+                _faceNormal = _instance.GetComponent<FaceNormal>();
+
+                _billboard.enabled = _isBillboard;
+                _faceNormal.enabled = !_isBillboard;
             }
 
             public void UpdatePosition(Vector3 position, float size)
@@ -273,6 +293,18 @@ namespace GrabTool.Mesh
             public void Show()
             {
                 _lineRenderer.enabled = true;
+            }
+
+            public void UpdateSurfaceNormal(Vector3 newSurfaceNormal)
+            {
+                _faceNormal.surfaceNormalToMatch = newSurfaceNormal;
+            }
+
+            public void ToggleBillboardOrSurfaceNormal()
+            {
+                _isBillboard = !_isBillboard;
+                _billboard.enabled = _isBillboard;
+                _faceNormal.enabled = !_isBillboard;
             }
         }
 

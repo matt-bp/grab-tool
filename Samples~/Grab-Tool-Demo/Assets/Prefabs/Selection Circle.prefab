@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4524481222472927988}
   - component: {fileID: 4524481222472927989}
   - component: {fileID: -3440513510695570904}
+  - component: {fileID: 5455979864892496199}
   m_Layer: 0
   m_Name: Selection Circle
   m_TagString: Untagged
@@ -217,3 +218,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0df9b45a0f348138e60c4ec75c057fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5455979864892496199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4524481222472927990}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 143f16c908194f39a1ed274c40e8015f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  draggerToGetNormalFrom: {fileID: 0}
