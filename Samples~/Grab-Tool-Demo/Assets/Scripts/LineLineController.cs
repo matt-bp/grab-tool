@@ -24,7 +24,7 @@ public class LineLineController : MonoBehaviour
         
         Debug.DrawRay(Vector3.zero, thingToIntersectWith.normalized, thingToIntersectColor);
 
-        var result = Intersections.RayRayClosestPoint(rayA, rayB);
+        var result = ClosestPoint.RayRay(rayA, rayB);
 
         thingMultiplier = result.t;
     }
