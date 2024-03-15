@@ -21,21 +21,21 @@ namespace GrabTool.Mesh
         [SerializeField] private GameObject mouseIndicator;
         [SerializeField] private Models.MeshHistory history;
 
-        [SerializeField] private OnClickDragPlaneNormal onClickDragPlaneNormal;
+        [SerializeField] private OnClickDrag onClickDrag;
 
-        public Vector3 PlaneNormal => onClickDragPlaneNormal switch
+        public Vector3 PlaneNormal => onClickDrag switch
         {
-            OnClickDragPlaneNormal.Screen => -_camera.transform.forward,
-            OnClickDragPlaneNormal.XY => Vector3.forward,
-            OnClickDragPlaneNormal.YZ => Vector3.right,
-            OnClickDragPlaneNormal.XZ => Vector3.up,
-            OnClickDragPlaneNormal.Surface => _trackingState.SurfaceNormal,
+            OnClickDrag.PlaneScreen => -_camera.transform.forward,
+            OnClickDrag.PlaneXY => Vector3.forward,
+            OnClickDrag.PlaneYZ => Vector3.right,
+            OnClickDrag.PlaneXZ => Vector3.up,
+            OnClickDrag.PlaneSurface => _trackingState.SurfaceNormal,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         public void SetPlaneNormalType(int value)
         {
-            onClickDragPlaneNormal = (OnClickDragPlaneNormal)value;
+            onClickDrag = (OnClickDrag)value;
         }
 
         [Tooltip("X = Radius percentage distance from hit point.\nY = Strength of offset.")]
@@ -81,15 +81,13 @@ namespace GrabTool.Mesh
                     _mouseIndicatorState.Hide();
                     _constantMouseIndicator.Hide();
 
-                    // Find closest point on a ray to another ray.
-
-                    var point = _trackingState.InitialPosition;
-
-                    Debug.DrawRay(point, PlaneNormal * 2, Color.green);
-
-                    if (Intersections.RayPlane(ray, point, PlaneNormal, out var hit))
+                    if (onClickDrag == OnClickDrag.VectorSurface)
                     {
-                        _trackingState.UpdateIndices(hit.Point);
+                        UpdateIndicesBasedOnVector(ray);
+                    }
+                    else
+                    {
+                        UpdateIndicesBasedOnPlane(ray);
                     }
                 }
 
@@ -152,6 +150,30 @@ namespace GrabTool.Mesh
             }
         }
 
+        private void UpdateIndicesBasedOnVector(Ray screenRay)
+        {
+            var surfaceRay = new Ray(_trackingState.InitialPosition, _trackingState.SurfaceNormal);
+            Debug.DrawRay(surfaceRay.origin, surfaceRay.direction, Color.red);
+
+            var (_, t) = ClosestPoint.RayRay(screenRay, surfaceRay);
+
+            var worldPositionAlongSurfaceNormal = surfaceRay.GetPoint(t);
+            
+            _trackingState.UpdateIndices(worldPositionAlongSurfaceNormal);
+        }
+
+        private void UpdateIndicesBasedOnPlane(Ray screenRay)
+        {
+            var point = _trackingState.InitialPosition;
+
+            Debug.DrawRay(point, PlaneNormal * 2, Color.green);
+
+            if (Intersections.RayPlane(screenRay, point, PlaneNormal, out var hit))
+            {
+                _trackingState.UpdateIndices(hit.Point);
+            }
+        }
+
         public void OnSizeChanged(float value)
         {
             _currentRadius = Mathf.Max(value, minimumRadius);
@@ -203,13 +225,14 @@ namespace GrabTool.Mesh
             }
         }
 
-        public enum OnClickDragPlaneNormal
+        private enum OnClickDrag
         {
-            Screen,
-            XY,
-            YZ,
-            XZ,
-            Surface
+            PlaneScreen,
+            PlaneXY,
+            PlaneYZ,
+            PlaneXZ,
+            PlaneSurface,
+            VectorSurface
         }
     }
 }
