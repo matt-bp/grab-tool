@@ -308,7 +308,7 @@ namespace GrabTool.Mesh
             }
         }
 
-        private enum OnClickDrag
+        public enum OnClickDrag
         {
             PlaneScreen,
             PlaneXY,
