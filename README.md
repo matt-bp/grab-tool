@@ -2,9 +2,13 @@
 
 A runtime implementation of Maya's "Grab Tool" in Unity.
 
+[Writeup](https://matt-bp.github.io/posts/mesh-deformation-in-unity/)
+
 ## Demo
 
-... coming soon
+![Gif demo](https://matt-bp.github.io/assets/images/mesh-deformation/demo.gif)
+
+![YouTube Demo of Application](https://www.youtube.com/watch?v=PaUdfO6mtjg)
 
 ## Motivation
 
